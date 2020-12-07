@@ -7168,13 +7168,13 @@ const executeCommand = (command, options, callback) => {
   }
 
   process.exec(command, {cwd: dst}, function(err, stdout, stderr) {
-    if (stdout === '') {
-      callback('this does not look like a git repo')
+    if (stderr) {
+      callback(stderr)
       return
     }
 
-    if (stderr) {
-      callback(stderr)
+    if (stdout === '') {
+      callback('this does not look like a git repo')
       return
     }
 
@@ -9154,7 +9154,7 @@ IndexedSourceMapConsumer.prototype.sourceContentFor =
  * and an object is returned with the following properties:
  *
  *   - line: The line number in the generated source, or null.  The
- *     line number is 1-based. 
+ *     line number is 1-based.
  *   - column: The column number in the generated source, or null.
  *     The column number is 0-based.
  */
@@ -13761,7 +13761,9 @@ function run() {
     });
 }
 exports.run = run;
-run();
+run().catch((e) => {
+    core.error(e);
+});
 //# sourceMappingURL=index.js.map
 
 /***/ }),
@@ -27146,7 +27148,7 @@ exports.exec = exec;
 /******/ ],
 /******/ function(__webpack_require__) { // webpackRuntimeModules
 /******/ 	"use strict";
-/******/ 
+/******/
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	!function() {
 /******/ 		__webpack_require__.nmd = function(module) {
@@ -27163,6 +27165,6 @@ exports.exec = exec;
 /******/ 			return module;
 /******/ 		};
 /******/ 	}();
-/******/ 	
+/******/
 /******/ }
 );
