@@ -56,7 +56,6 @@
     "@actions/io": "^1.0.2",
     "chalk": "^4.1.0",
     "flat": "^5.0.2",
-    "git-last-commit": "^1.0.0",
     "handlebars": "^4.7.6",
     "mime-types": "^2.1.27",
     "node-vault": "^0.9.20",

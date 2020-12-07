@@ -7154,86 +7154,7 @@ exports.checked = checked;
 /* 222 */,
 /* 223 */,
 /* 224 */,
-/* 225 */
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-const process = __webpack_require__(129),
-  splitCharacter = '<##>'
-
-const executeCommand = (command, options, callback) => {
-  let dst = __dirname
-
-  if(!!options && options.dst) {
-    dst = options.dst
-  }
-
-  process.exec(command, {cwd: dst}, function(err, stdout, stderr) {
-    if (stdout === '') {
-      callback('this does not look like a git repo')
-      return
-    }
-
-    if (stderr) {
-      callback(stderr)
-      return
-    }
-
-    callback(null, stdout)
-  })
-}
-
-const prettyFormat = ["%h", "%H", "%s", "%f", "%b", "%at", "%ct", "%an", "%ae", "%cn", "%ce", "%N", ""]
-
-const getCommandString = splitCharacter =>
-  'git log -1 --pretty=format:"' + prettyFormat.join(splitCharacter) +'"' +
-    ' && git rev-parse --abbrev-ref HEAD' +
-    ' && git tag --contains HEAD'
-
-const getLastCommit = (callback, options) => {
-  const command = getCommandString(splitCharacter)
-
-  executeCommand(command, options, function(err, res) {
-    if (err) {
-      callback(err)
-      return
-    }
-
-    var a = res.split(splitCharacter)
-
-    // e.g. master\n or master\nv1.1\n or master\nv1.1\nv1.2\n
-    var branchAndTags = a[a.length-1].split('\n').filter(n => n)
-    var branch = branchAndTags[0]
-    var tags = branchAndTags.slice(1)
-
-    callback(null, {
-      shortHash: a[0],
-      hash: a[1],
-      subject: a[2],
-      sanitizedSubject: a[3],
-      body: a[4],
-      authoredOn: a[5],
-      committedOn: a[6],
-      author: {
-        name: a[7],
-        email: a[8],
-      },
-      committer: {
-        name: a[9],
-        email: a[10]
-      },
-      notes: a[11],
-      branch,
-      tags
-    })
-  })
-}
-
-module.exports = {
-  getLastCommit
-}
-
-
-/***/ }),
+/* 225 */,
 /* 226 */,
 /* 227 */
 /***/ (function(module, exports, __webpack_require__) {
@@ -13700,7 +13621,6 @@ exports.run = void 0;
 const tslib_1 = __webpack_require__(422);
 const core = __webpack_require__(470);
 const io = __webpack_require__(1);
-const util = __webpack_require__(669);
 const chalk = __webpack_require__(843);
 const fs = __webpack_require__(747);
 const mime = __webpack_require__(779);
@@ -13708,13 +13628,13 @@ const config_1 = __webpack_require__(531);
 const files_1 = __webpack_require__(104);
 const git_1 = __webpack_require__(125);
 const template_1 = __webpack_require__(74);
-const git_last_commit_1 = __webpack_require__(225);
+const git_commit_1 = __webpack_require__(780);
 function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { repos } = config_1.githubActionConfig();
         const files = yield files_1.getFiles();
         const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
-        const commit = yield util.promisify(git_last_commit_1.getLastCommit)({ dst: origRepoPath });
+        const commit = yield git_commit_1.getLastCommit(origRepoPath);
         const origin = yield git_1.getRepoInfo(process.env.GITHUB_REPOSITORY);
         yield Promise.all(repos.map((repo) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
@@ -22604,7 +22524,88 @@ function populateMaps (extensions, types) {
 
 
 /***/ }),
-/* 780 */,
+/* 780 */
+/***/ (function(__unusedmodule, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getLastCommit = void 0;
+const tslib_1 = __webpack_require__(422);
+const exec = __webpack_require__(986);
+function executeCommand(command, args, options) {
+    return new Promise((resolve, reject) => {
+        let out = '';
+        let err = '';
+        options.listeners = {
+            stdout: (data) => {
+                out += data.toString();
+            },
+            stderr: (data) => {
+                err += data.toString();
+            },
+        };
+        exec.exec(command, args, options).then(() => {
+            if (err)
+                return reject(err);
+            resolve(out);
+        });
+    });
+}
+function getLastCommit(cwd) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const splitCharacter = '<##>';
+        const prettyFormat = [
+            '%h',
+            '%H',
+            '%s',
+            '%f',
+            '%b',
+            '%at',
+            '%ct',
+            '%an',
+            '%ae',
+            '%cn',
+            '%ce',
+            '%N',
+            '',
+        ];
+        const commandString = 'git log -1 --pretty=format:"' +
+            prettyFormat.join(splitCharacter) +
+            '"' +
+            ' && git rev-parse --abbrev-ref HEAD' +
+            ' && git tag --contains HEAD';
+        const res = yield executeCommand(commandString, [], { cwd });
+        const a = res.split(splitCharacter);
+        const branchAndTags = a[a.length - 1].split('\n').filter((n) => n);
+        const branch = branchAndTags[0];
+        const tags = branchAndTags.slice(1);
+        return {
+            shortHash: a[0],
+            hash: a[1],
+            subject: a[2],
+            sanitizedSubject: a[3],
+            body: a[4],
+            authoredOn: a[5],
+            committedOn: a[6],
+            author: {
+                name: a[7],
+                email: a[8],
+            },
+            committer: {
+                name: a[9],
+                email: a[10],
+            },
+            notes: a[11],
+            branch,
+            tags,
+        };
+    });
+}
+exports.getLastCommit = getLastCommit;
+//# sourceMappingURL=git-commit.js.map
+
+/***/ }),
 /* 781 */,
 /* 782 */,
 /* 783 */,

@@ -1,7 +1,5 @@
-/** eslint @typescript-eslint/ban-ts-comment: 0 */
 import * as core from '@actions/core';
 import * as io from '@actions/io';
-import * as util from 'util';
 import * as chalk from 'chalk';
 import * as fs from 'fs';
 import * as mime from 'mime-types';
@@ -16,7 +14,7 @@ import {
   getRepoInfo,
 } from './git';
 import { parseTemplateFile } from './template';
-import { getLastCommit } from 'git-last-commit';
+import { getLastCommit } from './git-commit';
 
 export async function run(): Promise<void> {
   const { repos } = githubActionConfig();
@@ -24,8 +22,7 @@ export async function run(): Promise<void> {
   // TODO: Analyze if changed have been made in the template-dir
   const files = await getFiles();
   const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
-  // @ts-ignore
-  const commit = await util.promisify(getLastCommit)({ dst: origRepoPath });
+  const commit = await getLastCommit(origRepoPath);
 
   const origin = await getRepoInfo(process.env.GITHUB_REPOSITORY);
 

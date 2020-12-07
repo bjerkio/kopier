@@ -1,7 +1,7 @@
 import * as Handlebars from 'handlebars';
 import type { ReposGetResponseData } from '@octokit/types';
 import { readFileSync } from 'fs';
-import type { Commit } from 'git-last-commit';
+import type { Commit } from './git-commit';
 
 export interface TemplateContext {
   github: ReposGetResponseData;
