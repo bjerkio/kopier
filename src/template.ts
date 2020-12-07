@@ -5,6 +5,7 @@ import type { Commit } from 'git-last-commit';
 
 export interface TemplateContext {
   github: ReposGetResponseData;
+  origin: ReposGetResponseData;
   repo: unknown;
   commit: Commit;
 }

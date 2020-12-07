@@ -5964,7 +5964,7 @@ module.exports.default = macosRelease;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.openPullRequest = exports.applyChanges = exports.addFileToIndex = exports.createBranch = exports.cloneRepository = void 0;
+exports.openPullRequest = exports.applyChanges = exports.addFileToIndex = exports.createBranch = exports.cloneRepository = exports.getRepoInfo = void 0;
 const tslib_1 = __webpack_require__(422);
 const exec = __webpack_require__(986);
 const github = __webpack_require__(469);
@@ -5972,10 +5972,9 @@ const config_1 = __webpack_require__(531);
 const files_1 = __webpack_require__(104);
 const template_1 = __webpack_require__(74);
 const utils_1 = __webpack_require__(477);
-function cloneRepository(name) {
+function getRepoInfo(name) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { githubToken } = config_1.githubActionConfig();
-        const tmpDir = yield files_1.createTempDirectory();
         const octokit = github.getOctokit(githubToken);
         const [owner, repo] = name.split('/');
         const { data } = yield octokit.repos.get({
@@ -5983,6 +5982,16 @@ function cloneRepository(name) {
             repo,
         });
         utils_1.invariant(data, `${name} was not found or the token does not have access.`);
+        return data;
+    });
+}
+exports.getRepoInfo = getRepoInfo;
+function cloneRepository(name) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const { githubToken } = config_1.githubActionConfig();
+        const tmpDir = yield files_1.createTempDirectory();
+        const data = yield getRepoInfo(name);
+        const [owner, repo] = name.split('/');
         yield exec.exec(`git clone https://x-access-token:${githubToken}@github.com/${owner}/${repo}.git ${tmpDir}`);
         return [data, tmpDir];
     });
@@ -7652,19 +7661,20 @@ module.exports = function (fromModel) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.pullRequestBody = void 0;
-exports.pullRequestBody = `Adds changes from {{repo.name}}
+exports.pullRequestBody = `Adds changes from {{origin.name}}
 
-### {{commit.subject}}
-
-Authored by: {{commit.author.name}}
+This change was done by {{commit.author.name}} on {{commit.authoredOn}}.
 
 <details>
 <summary>Commit message</summary>
+**{{commit.subject}}**
 {{commit.body}}
 </details>
 
 ---
+
 This was created by [Kopier](https://github.com/bjerkio/kopier). 🎉
+
 `;
 //# sourceMappingURL=pr-message.js.map
 
@@ -13705,6 +13715,7 @@ function run() {
         const files = yield files_1.getFiles();
         const commit = yield util.promisify(git_last_commit_1.getLastCommit)();
         const origRepoPath = process.cwd();
+        const origin = yield git_1.getRepoInfo(process.env.GITHUB_REPOSITORY);
         yield Promise.all(repos.map((repo) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
             const [repoInfo, repoDir] = yield git_1.cloneRepository(repo);
@@ -13712,6 +13723,7 @@ function run() {
                 github: repoInfo,
                 repo: yield files_1.getKopierConfig(repoDir),
                 commit,
+                origin,
             };
             const date = new Date();
             const branchName = `kopier/${commit.shortHash}-${date.getMilliseconds()}`;
@@ -16969,7 +16981,7 @@ exports.githubActionConfig = () => {
         repos: parseMultiInput(core_1.getInput('repos', { required: true })),
         basePath: core_1.getInput('base-path'),
     });
-    return Object.assign(Object.assign({}, input), { files: input.files || ['templates/**'], commitMessage: input.commitMessage || 'chore(kopier): update files from {{github.name}}', pullRequestTitle: input.pullRequestTitle || 'chore(kopier): update files {{github.name}}', pullRequestBody: input.pullRequestBody || pr_message_1.pullRequestBody });
+    return Object.assign(Object.assign({}, input), { files: input.files || ['templates/**'], commitMessage: input.commitMessage || 'chore(kopier): update files from {{origin.name}}', pullRequestTitle: input.pullRequestTitle || 'chore(kopier): update files {{origin.name}}', pullRequestBody: input.pullRequestBody || pr_message_1.pullRequestBody });
 };
 //# sourceMappingURL=config.js.map
 

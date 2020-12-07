@@ -12,6 +12,7 @@ import {
   applyChanges,
   createBranch,
   openPullRequest,
+  getRepoInfo,
 } from './git';
 import { parseTemplateFile } from './template';
 import { getLastCommit } from 'git-last-commit';
@@ -25,6 +26,8 @@ export async function run(): Promise<void> {
 
   const origRepoPath = process.cwd();
 
+  const origin = await getRepoInfo(process.env.GITHUB_REPOSITORY);
+
   await Promise.all(
     repos.map(async (repo) => {
       core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
@@ -34,6 +37,7 @@ export async function run(): Promise<void> {
         github: repoInfo,
         repo: await getKopierConfig(repoDir),
         commit,
+        origin,
       };
 
       const date = new Date();

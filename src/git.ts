@@ -6,13 +6,9 @@ import { createTempDirectory } from './files';
 import { parseTemplate, TemplateContext } from './template';
 import { invariant } from './utils';
 
-export async function cloneRepository(
-  name: string,
-): Promise<[ReposGetResponseData, string]> {
+export async function getRepoInfo(name: string): Promise<ReposGetResponseData> {
   const { githubToken } = githubActionConfig();
-  const tmpDir = await createTempDirectory();
   const octokit = github.getOctokit(githubToken);
-
   const [owner, repo] = name.split('/');
 
   const { data } = await octokit.repos.get({
@@ -21,6 +17,18 @@ export async function cloneRepository(
   });
 
   invariant(data, `${name} was not found or the token does not have access.`);
+
+  return data;
+}
+
+export async function cloneRepository(
+  name: string,
+): Promise<[ReposGetResponseData, string]> {
+  const { githubToken } = githubActionConfig();
+  const tmpDir = await createTempDirectory();
+  const data = await getRepoInfo(name);
+
+  const [owner, repo] = name.split('/');
 
   await exec.exec(
     `git clone https://x-access-token:${githubToken}@github.com/${owner}/${repo}.git ${tmpDir}`,
