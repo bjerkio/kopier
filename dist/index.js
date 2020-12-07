@@ -16893,7 +16893,7 @@ const runtypes_1 = __webpack_require__(81);
 const pr_message_1 = __webpack_require__(261);
 const parseMultiInput = (multilineInput) => {
     if (!multilineInput)
-        return multilineInput;
+        return undefined;
     return multilineInput.split(/,|\n/).map((e) => e.trim());
 };
 exports.GithubActionsConfig = runtypes_1.Record({

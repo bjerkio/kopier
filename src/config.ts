@@ -3,7 +3,7 @@ import { Array, Record, Static, String, Undefined } from 'runtypes';
 import { pullRequestBody } from './pr-message';
 
 const parseMultiInput = (multilineInput) => {
-  if (!multilineInput) return multilineInput;
+  if (!multilineInput) return undefined;
   return multilineInput.split(/,|\n/).map((e) => e.trim());
 };
 
