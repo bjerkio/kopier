@@ -4,7 +4,14 @@ import * as chalk from 'chalk';
 import * as fs from 'fs';
 import * as mime from 'mime-types';
 import { githubActionConfig } from './config';
-import { getCleanPath, getFiles, getKopierConfig, getNewPath, saveFile } from './files';
+import {
+  getCleanPath,
+  getFiles,
+  getKopierConfig,
+  getNewPath,
+  removeLastExt,
+  saveFile,
+} from './files';
 import {
   addFileToIndex,
   cloneRepository,
@@ -38,8 +45,7 @@ export async function run(): Promise<void> {
         origin,
       };
 
-      const date = new Date();
-      const branchName = `kopier/${commit.shortHash}-${date.getMilliseconds()}`;
+      const branchName = `kopier/${commit.shortHash}`;
 
       core.info(
         chalk.bold(`${repo}: `) +
@@ -71,8 +77,9 @@ export async function run(): Promise<void> {
 
           if (m === 'text/x-handlebars-template') {
             const fileContent = await parseTemplateFile(context, file);
-            await saveFile(p, fileContent);
-            addFileToIndex(repoDir, p);
+            const newFileName = removeLastExt(p);
+            await saveFile(newFileName, fileContent);
+            addFileToIndex(repoDir, newFileName);
           } else if (!s.isDirectory()) {
             await io.cp(file, p);
             addFileToIndex(repoDir, p);
@@ -84,10 +91,10 @@ export async function run(): Promise<void> {
       await applyChanges(repoDir, context, branchName);
 
       // Open Pull Request
-      const id = await openPullRequest(branchName, context);
+      const { html_url, number } = await openPullRequest(branchName, context);
       core.info(
         chalk.bold(`${repo}: `) +
-          chalk.magenta(`Created new pull request (${repo}#${id})`),
+          chalk.magenta(`Created new pull request #${number} – ${html_url}`),
       );
     }),
   );
@@ -95,4 +102,4 @@ export async function run(): Promise<void> {
 
 run().catch((e) => {
   core.error(e);
-})
+});

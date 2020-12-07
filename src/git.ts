@@ -1,6 +1,9 @@
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
-import type { ReposGetResponseData } from '@octokit/types';
+import type {
+  ReposGetResponseData,
+  PullsCreateResponseData,
+} from '@octokit/types';
 import { githubActionConfig } from './config';
 import { createTempDirectory } from './files';
 import { parseTemplate, TemplateContext } from './template';
@@ -71,7 +74,7 @@ export async function applyChanges(
 export async function openPullRequest(
   branchName: string,
   context: TemplateContext,
-): Promise<number> {
+): Promise<PullsCreateResponseData> {
   const {
     githubToken,
     pullRequestBody,
@@ -90,5 +93,5 @@ export async function openPullRequest(
     base: default_branch,
   });
 
-  return pullRequest.id;
+  return pullRequest;
 }

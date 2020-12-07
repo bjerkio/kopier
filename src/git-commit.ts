@@ -78,7 +78,7 @@ export async function getLastCommit(cwd?: string): Promise<Commit> {
     cwd,
   });
 
-  const a = resLog.split(splitCharacter);
+  const a = resLog.replace('"', '').split(splitCharacter);
 
   const tags = tagsRaw.split('\n');
 

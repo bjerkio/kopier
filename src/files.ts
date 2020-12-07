@@ -22,6 +22,10 @@ export function getNewPath(
   return basePath ? path.join(repoDir, basePath, f) : path.join(repoDir, f);
 }
 
+export function removeLastExt(fileName: string): string {
+  return fileName.replace(path.extname(fileName), '');
+}
+
 export function getCleanPath(file: string): string {
   return file.substring(0, file.lastIndexOf(path.sep) + 1);
 }

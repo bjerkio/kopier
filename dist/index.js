@@ -4996,7 +4996,7 @@ exports.issueCommand = issueCommand;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getKopierConfig = exports.createTempDirectory = exports.saveFile = exports.getCleanPath = exports.getNewPath = exports.getFiles = void 0;
+exports.getKopierConfig = exports.createTempDirectory = exports.saveFile = exports.getCleanPath = exports.removeLastExt = exports.getNewPath = exports.getFiles = void 0;
 const tslib_1 = __webpack_require__(422);
 const path = __webpack_require__(622);
 const uuid_1 = __webpack_require__(62);
@@ -5019,6 +5019,10 @@ function getNewPath(repoDir, file, origRepoPath) {
     return basePath ? path.join(repoDir, basePath, f) : path.join(repoDir, f);
 }
 exports.getNewPath = getNewPath;
+function removeLastExt(fileName) {
+    return fileName.replace(path.extname(fileName), '');
+}
+exports.removeLastExt = removeLastExt;
 function getCleanPath(file) {
     return file.substring(0, file.lastIndexOf(path.sep) + 1);
 }
@@ -6037,7 +6041,7 @@ function openPullRequest(branchName, context) {
             body: yield template_1.parseTemplate(pullRequestBody, context),
             base: default_branch,
         });
-        return pullRequest.id;
+        return pullRequest;
     });
 }
 exports.openPullRequest = openPullRequest;
@@ -13645,8 +13649,7 @@ function run() {
                 commit,
                 origin,
             };
-            const date = new Date();
-            const branchName = `kopier/${commit.shortHash}-${date.getMilliseconds()}`;
+            const branchName = `kopier/${commit.shortHash}`;
             core.info(chalk.bold(`${repo}: `) +
                 chalk.magenta(`Creating a new branch named ${branchName} in `));
             yield git_1.createBranch(repoDir, branchName);
@@ -13665,8 +13668,9 @@ function run() {
                 }
                 if (m === 'text/x-handlebars-template') {
                     const fileContent = yield template_1.parseTemplateFile(context, file);
-                    yield files_1.saveFile(p, fileContent);
-                    git_1.addFileToIndex(repoDir, p);
+                    const newFileName = files_1.removeLastExt(p);
+                    yield files_1.saveFile(newFileName, fileContent);
+                    git_1.addFileToIndex(repoDir, newFileName);
                 }
                 else if (!s.isDirectory()) {
                     yield io.cp(file, p);
@@ -13674,9 +13678,9 @@ function run() {
                 }
             })));
             yield git_1.applyChanges(repoDir, context, branchName);
-            const id = yield git_1.openPullRequest(branchName, context);
+            const { html_url, number } = yield git_1.openPullRequest(branchName, context);
             core.info(chalk.bold(`${repo}: `) +
-                chalk.magenta(`Created new pull request (${repo}#${id})`));
+                chalk.magenta(`Created new pull request #${number} – ${html_url}`));
         })));
     });
 }
@@ -22574,7 +22578,7 @@ function getLastCommit(cwd) {
         const tagsRaw = yield executeCommand('git', ['tag', '--contains', 'HEAD'], {
             cwd,
         });
-        const a = resLog.split(splitCharacter);
+        const a = resLog.replace('"', '').split(splitCharacter);
         const tags = tagsRaw.split('\n');
         return {
             shortHash: a[0],
