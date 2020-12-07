@@ -40,7 +40,7 @@ export async function addFileToIndex(
   repoDir: string,
   file: string,
 ): Promise<void> {
-  await exec.exec(`git add`, [file, '--no-verify'], { cwd: repoDir });
+  await exec.exec(`git add`, [file], { cwd: repoDir });
 }
 
 export async function applyChanges(

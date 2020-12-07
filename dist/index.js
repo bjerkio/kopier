@@ -5996,7 +5996,7 @@ function createBranch(repoDir, branchName) {
 exports.createBranch = createBranch;
 function addFileToIndex(repoDir, file) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        yield exec.exec(`git add`, [file, '--no-verify'], { cwd: repoDir });
+        yield exec.exec(`git add`, [file], { cwd: repoDir });
     });
 }
 exports.addFileToIndex = addFileToIndex;
