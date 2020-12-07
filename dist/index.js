@@ -6007,7 +6007,7 @@ function applyChanges(repoDir, context) {
         yield exec.exec(`git config user.email`, [context.commit.author.email], { cwd: repoDir });
         yield exec.exec(`git config user.name`, [context.commit.author.name], { cwd: repoDir });
         yield exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-        yield exec.exec(`git push --no-verifiy`, [], { cwd: repoDir });
+        yield exec.exec(`git push`, [], { cwd: repoDir });
     });
 }
 exports.applyChanges = applyChanges;

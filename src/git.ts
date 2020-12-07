@@ -52,7 +52,7 @@ export async function applyChanges(
   await exec.exec(`git config user.email`, [context.commit.author.email], { cwd: repoDir });
   await exec.exec(`git config user.name`, [context.commit.author.name], { cwd: repoDir });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-  await exec.exec(`git push --no-verifiy`, [], { cwd: repoDir });
+  await exec.exec(`git push`, [], { cwd: repoDir });
 }
 
 export async function openPullRequest(
