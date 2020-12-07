@@ -6,7 +6,8 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     steps:
-      - uses: bjerkio/kopier@main
+      - uses: actions/checkout@v1
+      - uses: ./
         with:
           repos: |
             bjerkio/kopier-example
