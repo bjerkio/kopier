@@ -7168,13 +7168,13 @@ const executeCommand = (command, options, callback) => {
   }
 
   process.exec(command, {cwd: dst}, function(err, stdout, stderr) {
-    if (stderr) {
-      callback(stderr)
+    if (stdout === '') {
+      callback('this does not look like a git repo')
       return
     }
 
-    if (stdout === '') {
-      callback('this does not look like a git repo')
+    if (stderr) {
+      callback(stderr)
       return
     }
 
@@ -9154,7 +9154,7 @@ IndexedSourceMapConsumer.prototype.sourceContentFor =
  * and an object is returned with the following properties:
  *
  *   - line: The line number in the generated source, or null.  The
- *     line number is 1-based.
+ *     line number is 1-based. 
  *   - column: The column number in the generated source, or null.
  *     The column number is 0-based.
  */
@@ -13713,8 +13713,8 @@ function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { repos } = config_1.githubActionConfig();
         const files = yield files_1.getFiles();
-        const commit = yield util.promisify(git_last_commit_1.getLastCommit)();
-        const origRepoPath = process.cwd();
+        const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
+        const commit = yield util.promisify(git_last_commit_1.getLastCommit)({ dst: origRepoPath });
         const origin = yield git_1.getRepoInfo(process.env.GITHUB_REPOSITORY);
         yield Promise.all(repos.map((repo) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
@@ -27148,7 +27148,7 @@ exports.exec = exec;
 /******/ ],
 /******/ function(__webpack_require__) { // webpackRuntimeModules
 /******/ 	"use strict";
-/******/
+/******/ 
 /******/ 	/* webpack/runtime/node module decorator */
 /******/ 	!function() {
 /******/ 		__webpack_require__.nmd = function(module) {
@@ -27165,6 +27165,6 @@ exports.exec = exec;
 /******/ 			return module;
 /******/ 		};
 /******/ 	}();
-/******/
+/******/ 	
 /******/ }
 );
