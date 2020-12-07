@@ -6000,8 +6000,12 @@ function addFileToIndex(repoDir, file) {
     });
 }
 exports.addFileToIndex = addFileToIndex;
-function applyChanges(repoDir, message) {
+function applyChanges(repoDir, context) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const { commitMessage } = config_1.githubActionConfig();
+        const message = yield template_1.parseTemplate(commitMessage, context);
+        yield exec.exec(`git config user.email`, [context.commit.author.email], { cwd: repoDir });
+        yield exec.exec(`git config user.name`, [context.commit.author.name], { cwd: repoDir });
         yield exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
         yield exec.exec(`git push --no-verifiy`, [], { cwd: repoDir });
     });
@@ -13693,7 +13697,7 @@ const template_1 = __webpack_require__(74);
 const git_last_commit_1 = __webpack_require__(225);
 function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const { repos, commitMessage } = config_1.githubActionConfig();
+        const { repos } = config_1.githubActionConfig();
         const files = yield files_1.getFiles();
         const commit = yield util.promisify(git_last_commit_1.getLastCommit)();
         const origRepoPath = process.cwd();
@@ -13733,7 +13737,7 @@ function run() {
                     git_1.addFileToIndex(repoDir, p);
                 }
             })));
-            yield git_1.applyChanges(repoDir, yield template_1.parseTemplate(commitMessage, context));
+            yield git_1.applyChanges(repoDir, context);
             const id = yield git_1.openPullRequest(branchName, context);
             core.info(chalk.bold(`${repo}: `) +
                 chalk.magenta(`Created new pull request (${repo}#${id})`));

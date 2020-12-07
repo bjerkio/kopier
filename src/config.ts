@@ -59,6 +59,7 @@ export const GithubActionsConfig = Record({
    * check [pr-message.ts][pr-message.ts] for default.
    */
   pullRequestBody: String.Or(Undefined),
+
 });
 
 export type GithubActionsConfigType = Static<typeof GithubActionsConfig>;

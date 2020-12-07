@@ -45,8 +45,12 @@ export async function addFileToIndex(
 
 export async function applyChanges(
   repoDir: string,
-  message: string,
+  context: TemplateContext,
 ): Promise<void> {
+  const { commitMessage } = githubActionConfig();
+  const message = await parseTemplate(commitMessage, context);
+  await exec.exec(`git config user.email`, [context.commit.author.email], { cwd: repoDir });
+  await exec.exec(`git config user.name`, [context.commit.author.name], { cwd: repoDir });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
   await exec.exec(`git push --no-verifiy`, [], { cwd: repoDir });
 }

@@ -13,11 +13,11 @@ import {
   createBranch,
   openPullRequest,
 } from './git';
-import { parseTemplate, parseTemplateFile } from './template';
+import { parseTemplateFile } from './template';
 import { getLastCommit } from 'git-last-commit';
 
 export async function run(): Promise<void> {
-  const { repos, commitMessage } = githubActionConfig();
+  const { repos } = githubActionConfig();
 
   // TODO: Analyze if changed have been made in the template-dir
   const files = await getFiles();
@@ -79,7 +79,7 @@ export async function run(): Promise<void> {
       );
 
       // Commit the changes
-      await applyChanges(repoDir, await parseTemplate(commitMessage, context));
+      await applyChanges(repoDir, context);
 
       // Open Pull Request
       const id = await openPullRequest(branchName, context);
