@@ -13716,20 +13716,22 @@ function run() {
                 const s = fs.lstatSync(file);
                 const p = files_1.getNewPath(repoDir, file, origRepoPath);
                 core.debug(`${file} (${m}) (${p}) – does exist? ${fs.existsSync(file)}`);
+                try {
+                    core.debug(`Creating directory ${files_1.getCleanPath(p)}`);
+                    yield io.mkdirP(files_1.getCleanPath(p));
+                }
+                catch (e) {
+                    core.debug(e);
+                }
                 if (m === 'text/x-handlebars-template') {
                     const fileContent = yield template_1.parseTemplateFile(context, file);
                     yield files_1.saveFile(p, fileContent);
+                    git_1.addFileToIndex(repoDir, p);
                 }
                 else if (!s.isDirectory()) {
-                    try {
-                        yield io.mkdirP(files_1.getCleanPath(file));
-                    }
-                    catch (e) {
-                        core.debug(e);
-                    }
                     yield io.cp(file, p);
+                    git_1.addFileToIndex(repoDir, p);
                 }
-                git_1.addFileToIndex(repoDir, p);
             })));
             yield git_1.applyChanges(repoDir, yield template_1.parseTemplate(commitMessage, context));
             const id = yield git_1.openPullRequest(branchName, context);

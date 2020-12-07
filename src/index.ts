@@ -60,19 +60,21 @@ export async function run(): Promise<void> {
             `${file} (${m}) (${p}) – does exist? ${fs.existsSync(file)}`,
           );
 
+          try {
+            core.debug(`Creating directory ${getCleanPath(p)}`);
+            await io.mkdirP(getCleanPath(p));
+          } catch (e) {
+            core.debug(e);
+          }
+
           if (m === 'text/x-handlebars-template') {
             const fileContent = await parseTemplateFile(context, file);
             await saveFile(p, fileContent);
+            addFileToIndex(repoDir, p);
           } else if (!s.isDirectory()) {
-            try {
-              await io.mkdirP(getCleanPath(file));
-            } catch (e) {
-              core.debug(e);
-            }
             await io.cp(file, p);
+            addFileToIndex(repoDir, p);
           }
-
-          addFileToIndex(repoDir, p);
         }),
       );
 
