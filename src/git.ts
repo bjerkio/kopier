@@ -23,7 +23,7 @@ export async function cloneRepository(
   invariant(data, `${name} was not found or the token does not have access.`);
 
   await exec.exec(
-    `git clone https://x-access-token:${githubToken}@${owner}/${repo}.git ${tmpDir}`,
+    `git clone https://x-access-token:${githubToken}@github.com/${owner}/${repo}.git ${tmpDir}`,
   );
 
   return [data, tmpDir];

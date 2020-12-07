@@ -5983,7 +5983,7 @@ function cloneRepository(name) {
             repo,
         });
         utils_1.invariant(data, `${name} was not found or the token does not have access.`);
-        yield exec.exec(`git clone https://x-access-token:${githubToken}@${owner}/${repo}.git ${tmpDir}`);
+        yield exec.exec(`git clone https://x-access-token:${githubToken}@github.com/${owner}/${repo}.git ${tmpDir}`);
         return [data, tmpDir];
     });
 }
@@ -13697,7 +13697,7 @@ function run() {
         const commit = yield util.promisify(git_last_commit_1.getLastCommit)();
         const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
         yield Promise.all(repos.map((repo) => tslib_1.__awaiter(this, void 0, void 0, function* () {
-            core.info(chalk.bold(repo) + chalk.magenta('Cloning repository'));
+            core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
             const [repoInfo, repoDir] = yield git_1.cloneRepository(repo);
             const context = {
                 github: repoInfo,
@@ -13706,10 +13706,10 @@ function run() {
             };
             const date = new Date();
             const branchName = `kopier/${commit.shortHash}-${date.getMilliseconds()}`;
-            core.info(chalk.bold(repo) +
+            core.info(chalk.bold(`${repo}: `) +
                 chalk.magenta(`Creating a new branch named ${branchName} in `));
             yield git_1.createBranch(repoDir, branchName);
-            core.info(chalk.bold(repo) + chalk.magenta('Copying and generating files'));
+            core.info(chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'));
             yield Promise.all(files.map((file) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                 const m = mime.lookup(file);
                 const p = files_1.getNewPath(repoDir, file, origRepoPath);
@@ -13724,7 +13724,7 @@ function run() {
             })));
             yield git_1.applyChanges(repoDir, yield template_1.parseTemplate(commitMessage, context));
             const id = yield git_1.openPullRequest(branchName, context);
-            core.info(chalk.bold(repo) +
+            core.info(chalk.bold(`${repo}: `) +
                 chalk.magenta(`Created new pull request (${repo}#${id})`));
         })));
     });

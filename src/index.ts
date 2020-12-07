@@ -26,7 +26,7 @@ export async function run(): Promise<void> {
 
   await Promise.all(
     repos.map(async (repo) => {
-      core.info(chalk.bold(repo) + chalk.magenta('Cloning repository'));
+      core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
       const [repoInfo, repoDir] = await cloneRepository(repo);
 
       const context = {
@@ -39,14 +39,14 @@ export async function run(): Promise<void> {
       const branchName = `kopier/${commit.shortHash}-${date.getMilliseconds()}`;
 
       core.info(
-        chalk.bold(repo) +
+        chalk.bold(`${repo}: `) +
           chalk.magenta(`Creating a new branch named ${branchName} in `),
       );
 
       await createBranch(repoDir, branchName);
 
       core.info(
-        chalk.bold(repo) + chalk.magenta('Copying and generating files'),
+        chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'),
       );
 
       await Promise.all(
@@ -71,7 +71,7 @@ export async function run(): Promise<void> {
       // Open Pull Request
       const id = await openPullRequest(branchName, context);
       core.info(
-        chalk.bold(repo) +
+        chalk.bold(`${repo}: `) +
           chalk.magenta(`Created new pull request (${repo}#${id})`),
       );
     }),
