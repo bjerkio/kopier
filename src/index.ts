@@ -79,7 +79,7 @@ export async function run(): Promise<void> {
       );
 
       // Commit the changes
-      await applyChanges(repoDir, context);
+      await applyChanges(repoDir, context, branchName);
 
       // Open Pull Request
       const id = await openPullRequest(branchName, context);

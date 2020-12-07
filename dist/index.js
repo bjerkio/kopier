@@ -6000,14 +6000,18 @@ function addFileToIndex(repoDir, file) {
     });
 }
 exports.addFileToIndex = addFileToIndex;
-function applyChanges(repoDir, context) {
+function applyChanges(repoDir, context, branchName) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { commitMessage } = config_1.githubActionConfig();
         const message = yield template_1.parseTemplate(commitMessage, context);
-        yield exec.exec(`git config user.email`, [context.commit.author.email], { cwd: repoDir });
-        yield exec.exec(`git config user.name`, [context.commit.author.name], { cwd: repoDir });
+        yield exec.exec(`git config user.email`, [context.commit.author.email], {
+            cwd: repoDir,
+        });
+        yield exec.exec(`git config user.name`, [context.commit.author.name], {
+            cwd: repoDir,
+        });
         yield exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-        yield exec.exec(`git push`, [], { cwd: repoDir });
+        yield exec.exec(`git push -u origin `, [branchName], { cwd: repoDir });
     });
 }
 exports.applyChanges = applyChanges;
@@ -13737,7 +13741,7 @@ function run() {
                     git_1.addFileToIndex(repoDir, p);
                 }
             })));
-            yield git_1.applyChanges(repoDir, context);
+            yield git_1.applyChanges(repoDir, context, branchName);
             const id = yield git_1.openPullRequest(branchName, context);
             core.info(chalk.bold(`${repo}: `) +
                 chalk.magenta(`Created new pull request (${repo}#${id})`));
