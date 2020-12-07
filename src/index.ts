@@ -23,7 +23,7 @@ export async function run(): Promise<void> {
   const files = await getFiles();
   const commit = await util.promisify(getLastCommit)();
 
-  const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
+  const origRepoPath = process.cwd();
 
   await Promise.all(
     repos.map(async (repo) => {

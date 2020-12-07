@@ -13696,7 +13696,7 @@ function run() {
         const { repos, commitMessage } = config_1.githubActionConfig();
         const files = yield files_1.getFiles();
         const commit = yield util.promisify(git_last_commit_1.getLastCommit)();
-        const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
+        const origRepoPath = process.cwd();
         yield Promise.all(repos.map((repo) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
             const [repoInfo, repoDir] = yield git_1.cloneRepository(repo);
