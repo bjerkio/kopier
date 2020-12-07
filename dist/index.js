@@ -22568,18 +22568,14 @@ function getLastCommit(cwd) {
             '%cn',
             '%ce',
             '%N',
-            '',
         ];
-        const commandString = 'git log -1 --pretty=format:"' +
-            prettyFormat.join(splitCharacter) +
-            '"' +
-            ' && git rev-parse --abbrev-ref HEAD' +
-            ' && git tag --contains HEAD';
-        const res = yield executeCommand(commandString, [], { cwd });
-        const a = res.split(splitCharacter);
-        const branchAndTags = a[a.length - 1].split('\n').filter((n) => n);
-        const branch = branchAndTags[0];
-        const tags = branchAndTags.slice(1);
+        const resLog = yield executeCommand('git', ['log', '-1', `--pretty=format:"${prettyFormat.join(splitCharacter)}"`], { cwd });
+        const branch = yield executeCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd });
+        const tagsRaw = yield executeCommand('git', ['tag', '--contains', 'HEAD'], {
+            cwd,
+        });
+        const a = resLog.split(splitCharacter);
+        const tags = tagsRaw.split('\n');
         return {
             shortHash: a[0],
             hash: a[1],

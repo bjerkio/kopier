@@ -27,7 +27,6 @@ function executeCommand(
   options?: exec.ExecOptions,
 ): Promise<string> {
   return new Promise((resolve, reject) => {
-
     let out = '';
     let err = '';
     options.listeners = {
@@ -61,22 +60,27 @@ export async function getLastCommit(cwd?: string): Promise<Commit> {
     '%cn',
     '%ce',
     '%N',
-    '',
   ];
 
-  const commandString = 'git log -1 --pretty=format:"' +
-    prettyFormat.join(splitCharacter) +
-    '"' +
-    ' && git rev-parse --abbrev-ref HEAD' +
-    ' && git tag --contains HEAD';
+  const resLog = await executeCommand(
+    'git',
+    ['log', '-1', `--pretty=format:"${prettyFormat.join(splitCharacter)}"`],
+    { cwd },
+  );
 
-  const res = await executeCommand(commandString, [], { cwd });
+  const branch = await executeCommand(
+    'git',
+    ['rev-parse', '--abbrev-ref', 'HEAD'],
+    { cwd },
+  );
 
-  const a = res.split(splitCharacter);
+  const tagsRaw = await executeCommand('git', ['tag', '--contains', 'HEAD'], {
+    cwd,
+  });
 
-  const branchAndTags = a[a.length - 1].split('\n').filter((n) => n);
-  const branch = branchAndTags[0];
-  const tags = branchAndTags.slice(1);
+  const a = resLog.split(splitCharacter);
+
+  const tags = tagsRaw.split('\n');
 
   return {
     shortHash: a[0],
