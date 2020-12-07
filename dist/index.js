@@ -7663,11 +7663,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.pullRequestBody = void 0;
 exports.pullRequestBody = `Adds changes from [{{origin.name}}]({{origin.html_url}}).
 
-This change was done by {{commit.author.name}} on {{commit.authoredOn}}.
+This change was done by {{commit.author.name}}.
 
 <details>
-<summary>Commit message ([{{commit.shortHash}}]({{origin.html_url}}/commit/{{commit.hash}}))</summary>
-**{{commit.subject}}**
+<summary>Commit message</summary>
+{{commit.subject}}
 {{commit.body}}
 </details>
 
@@ -16981,7 +16981,7 @@ exports.githubActionConfig = () => {
         repos: parseMultiInput(core_1.getInput('repos', { required: true })),
         basePath: core_1.getInput('base-path'),
     });
-    return Object.assign(Object.assign({}, input), { files: input.files || ['templates/**'], commitMessage: input.commitMessage || 'chore(kopier): update files from {{origin.name}}', pullRequestTitle: input.pullRequestTitle || 'chore(kopier): update files {{origin.name}}', pullRequestBody: input.pullRequestBody || pr_message_1.pullRequestBody });
+    return Object.assign(Object.assign({}, input), { files: input.files || ['templates/**'], commitMessage: input.commitMessage || 'chore(kopier): {{commit.subject}}', pullRequestTitle: input.pullRequestTitle || 'chore(kopier): {{commit.subject}}', pullRequestBody: input.pullRequestBody || pr_message_1.pullRequestBody });
 };
 //# sourceMappingURL=config.js.map
 

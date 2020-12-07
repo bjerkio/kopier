@@ -74,10 +74,9 @@ export const githubActionConfig = (): GithubActionsConfigType => {
   return {
     ...input,
     files: input.files || ['templates/**'],
-    commitMessage:
-      input.commitMessage || 'chore(kopier): update files from {{origin.name}}',
+    commitMessage: input.commitMessage || 'chore(kopier): {{commit.subject}}',
     pullRequestTitle:
-      input.pullRequestTitle || 'chore(kopier): update files {{origin.name}}',
+      input.pullRequestTitle || 'chore(kopier): {{commit.subject}}',
     pullRequestBody: input.pullRequestBody || pullRequestBody,
   };
 };
