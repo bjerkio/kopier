@@ -13715,14 +13715,18 @@ function run() {
                 const m = mime.lookup(file);
                 const s = fs.lstatSync(file);
                 const p = files_1.getNewPath(repoDir, file, origRepoPath);
+                core.debug(`${file} (${m}) (${p}) – does exist? ${fs.existsSync(file)}`);
                 if (m === 'text/x-handlebars-template') {
                     const fileContent = yield template_1.parseTemplateFile(context, file);
                     yield files_1.saveFile(p, fileContent);
                 }
-                else if (s.isDirectory()) {
-                    yield io.mkdirP(file);
-                }
-                else {
+                else if (!s.isDirectory()) {
+                    try {
+                        yield io.mkdirP(files_1.getCleanPath(file));
+                    }
+                    catch (e) {
+                        core.debug(e);
+                    }
                     yield io.cp(file, p);
                 }
                 git_1.addFileToIndex(repoDir, p);

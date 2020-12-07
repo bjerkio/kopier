@@ -5,7 +5,7 @@ import * as chalk from 'chalk';
 import * as fs from 'fs';
 import * as mime from 'mime-types';
 import { githubActionConfig } from './config';
-import { getFiles, getKopierConfig, getNewPath, saveFile } from './files';
+import { getCleanPath, getFiles, getKopierConfig, getNewPath, saveFile } from './files';
 import {
   addFileToIndex,
   cloneRepository,
@@ -56,12 +56,19 @@ export async function run(): Promise<void> {
           const s = fs.lstatSync(file);
           const p = getNewPath(repoDir, file, origRepoPath);
 
+          core.debug(
+            `${file} (${m}) (${p}) – does exist? ${fs.existsSync(file)}`,
+          );
+
           if (m === 'text/x-handlebars-template') {
             const fileContent = await parseTemplateFile(context, file);
             await saveFile(p, fileContent);
-          } else if (s.isDirectory()) {
-            await io.mkdirP(file);
-          } else {
+          } else if (!s.isDirectory()) {
+            try {
+              await io.mkdirP(getCleanPath(file));
+            } catch (e) {
+              core.debug(e);
+            }
             await io.cp(file, p);
           }
 
