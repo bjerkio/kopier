@@ -5007,16 +5007,21 @@ const config_1 = __webpack_require__(531);
 const fs = __webpack_require__(747);
 function getFiles() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const { files: configuredFiles } = config_1.githubActionConfig();
-        const globber = yield glob.create(configuredFiles.join('/n'));
+        const { files: configuredFiles, basePath } = config_1.githubActionConfig();
+        const f = basePath
+            ? configuredFiles.map((f) => path.join(basePath, f))
+            : configuredFiles;
+        const globber = yield glob.create(f.join('/n'));
         return globber.glob();
     });
 }
 exports.getFiles = getFiles;
 function getNewPath(repoDir, file, origRepoPath) {
     const { basePath } = config_1.githubActionConfig();
-    const f = file.replace(origRepoPath, '');
-    return basePath ? path.join(repoDir, basePath, f) : path.join(repoDir, f);
+    let f = file.replace(origRepoPath, '');
+    if (basePath)
+        f = f.replace(basePath, '');
+    return path.join(repoDir, f);
 }
 exports.getNewPath = getNewPath;
 function removeLastExt(fileName) {
@@ -16907,7 +16912,7 @@ exports.githubActionConfig = () => {
         repos: parseMultiInput(core_1.getInput('repos', { required: true })),
         basePath: core_1.getInput('base-path'),
     });
-    return Object.assign(Object.assign({}, input), { files: input.files || ['templates/**'], commitMessage: input.commitMessage || 'chore(kopier): {{commit.subject}}', pullRequestTitle: input.pullRequestTitle || 'chore(kopier): {{commit.subject}}', pullRequestBody: input.pullRequestBody || pr_message_1.pullRequestBody });
+    return Object.assign(Object.assign({}, input), { files: input.files || ['**'], basePath: input.basePath || 'templates/', commitMessage: input.commitMessage || 'chore(kopier): {{commit.subject}}', pullRequestTitle: input.pullRequestTitle || 'chore(kopier): {{commit.subject}}', pullRequestBody: input.pullRequestBody || pr_message_1.pullRequestBody });
 };
 //# sourceMappingURL=config.js.map
 

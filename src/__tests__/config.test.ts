@@ -11,6 +11,6 @@ describe('config', () => {
       return core.config[name];
     });
     const { files } = githubActionConfig();
-    expect(files).toStrictEqual(['templates/**']);
+    expect(files).toStrictEqual(['**']);
   })
 })

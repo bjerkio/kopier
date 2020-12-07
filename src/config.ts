@@ -9,7 +9,7 @@ const parseMultiInput = (multilineInput) => {
 
 export const GithubActionsConfig = Record({
   /**
-   * Files. Defaults to `templates/**`
+   * Files. Defaults to `**`
    * Can be glob.
    *
    * Can be multiple lines or separated with comma (,).
@@ -34,8 +34,10 @@ export const GithubActionsConfig = Record({
   repos: Array(String), // repos
 
   /**
-   * Files are added to the root to the directory
+   * Files are looked for at root of the repository
    * if base-path is not applied.
+   *
+   * Defaults to `**`
    */
   basePath: String.Or(Undefined), // base-path
 
@@ -59,7 +61,6 @@ export const GithubActionsConfig = Record({
    * check [pr-message.ts][pr-message.ts] for default.
    */
   pullRequestBody: String.Or(Undefined),
-
 });
 
 export type GithubActionsConfigType = Static<typeof GithubActionsConfig>;
@@ -73,7 +74,8 @@ export const githubActionConfig = (): GithubActionsConfigType => {
   });
   return {
     ...input,
-    files: input.files || ['templates/**'],
+    files: input.files || ['**'],
+    basePath: input.basePath || 'templates/',
     commitMessage: input.commitMessage || 'chore(kopier): {{commit.subject}}',
     pullRequestTitle:
       input.pullRequestTitle || 'chore(kopier): {{commit.subject}}',

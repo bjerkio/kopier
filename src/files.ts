@@ -7,8 +7,12 @@ import { githubActionConfig } from './config';
 import * as fs from 'fs';
 
 export async function getFiles(): Promise<string[]> {
-  const { files: configuredFiles } = githubActionConfig();
-  const globber = await glob.create(configuredFiles.join('/n'));
+  const { files: configuredFiles, basePath } = githubActionConfig();
+
+  const f = basePath
+    ? configuredFiles.map((f) => path.join(basePath, f))
+    : configuredFiles;
+  const globber = await glob.create(f.join('/n'));
   return globber.glob();
 }
 
@@ -18,8 +22,9 @@ export function getNewPath(
   origRepoPath: string,
 ): string {
   const { basePath } = githubActionConfig();
-  const f = file.replace(origRepoPath, '');
-  return basePath ? path.join(repoDir, basePath, f) : path.join(repoDir, f);
+  let f = file.replace(origRepoPath, '');
+  if (basePath) f = f.replace(basePath, '');
+  return path.join(repoDir, f);
 }
 
 export function removeLastExt(fileName: string): string {
