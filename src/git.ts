@@ -3,6 +3,7 @@ import * as github from '@actions/github';
 import type { ReposGetResponseData } from '@octokit/types';
 import { githubActionConfig } from './config';
 import { createTempDirectory } from './files';
+import { parseTemplate, TemplateContext } from './template';
 import { invariant } from './utils';
 
 export async function cloneRepository(
@@ -28,6 +29,49 @@ export async function cloneRepository(
   return [data, tmpDir];
 }
 
-export async function createBranch(repoDir: string, branchName: string) {
+export async function createBranch(
+  repoDir: string,
+  branchName: string,
+): Promise<void> {
   await exec.exec(`git checkout -b`, [branchName], { cwd: repoDir });
+}
+
+export async function addFileToIndex(
+  repoDir: string,
+  file: string,
+): Promise<void> {
+  await exec.exec(`git add`, [file, '--no-verify'], { cwd: repoDir });
+}
+
+export async function applyChanges(
+  repoDir: string,
+  message: string,
+): Promise<void> {
+  await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
+  await exec.exec(`git push --no-verifiy`, [], { cwd: repoDir });
+}
+
+export async function openPullRequest(
+  branchName: string,
+  context: TemplateContext,
+): Promise<number> {
+  const {
+    githubToken,
+    pullRequestBody,
+    pullRequestTitle,
+  } = githubActionConfig();
+  const {
+    github: { owner, name, default_branch },
+  } = context;
+  const octokit = github.getOctokit(githubToken);
+  const { data: pullRequest } = await octokit.pulls.create({
+    owner: owner.login,
+    repo: name,
+    head: branchName,
+    title: await parseTemplate(pullRequestTitle, context),
+    body: await parseTemplate(pullRequestBody, context),
+    base: default_branch,
+  });
+
+  return pullRequest.id;
 }

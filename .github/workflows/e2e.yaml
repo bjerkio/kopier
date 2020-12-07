@@ -1,0 +1,13 @@
+on:
+  push:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: bjerkio/kopier@main
+        with:
+          repos: |
+            bjerkio/kopier-example
+          github-token: ${{ secrets.PRIVATE_GITHUB_TOKEN }}

@@ -6,9 +6,11 @@
     "node": ">= 12.13 <13"
   },
   "devDependencies": {
+    "@octokit/fixtures": "^21.2.5",
     "@types/faker": "^5.1.2",
     "@types/flat": "^5.0.1",
     "@types/jest": "~26.0.3",
+    "@types/mime-types": "^2.1.0",
     "@types/node": "~12.12.69",
     "@typescript-eslint/eslint-plugin": "~4.0.0",
     "@typescript-eslint/parser": "~3.10.1",
@@ -54,6 +56,9 @@
     "@actions/io": "^1.0.2",
     "chalk": "^4.1.0",
     "flat": "^5.0.2",
+    "git-last-commit": "^1.0.0",
+    "handlebars": "^4.7.6",
+    "mime-types": "^2.1.27",
     "node-vault": "^0.9.20",
     "runtypes": "^5.0.1",
     "tslib": "~2.0.3",

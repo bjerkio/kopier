@@ -1,17 +1,17 @@
 /* eslint @typescript-eslint/no-unused-vars: 0 */
 import * as faker from 'faker';
 
-export let config = {
+export const config = {
   files: [
     faker.system.directoryPath(),
     faker.system.directoryPath(),
     `${faker.system.directoryPath()}/**`,
   ].join('\n'),
-  'github-token': faker.random.uuid(),
+  'github-token': '0000000000000000000000000000000000000001',
   repos: [
-    `${faker.random.word()}/${faker.random.word()}`,
-    `${faker.random.word()}/${faker.random.word()}`,
-    `${faker.random.word()}/${faker.random.word()}`,
+    'octokit-fixture-org/hello-world',
+    'octokit-fixture-org/hello-world',
+    'octokit-fixture-org/hello-world',
   ].join(','),
   'base-path': faker.system.directoryPath(),
 };

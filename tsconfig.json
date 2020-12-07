@@ -19,7 +19,9 @@
     "strictNullChecks": false
   },
   "include": [
-    "src/**/*",
-    "__tests__/**/*"
+    "src/**/*"
+  ],
+  "exclude": [
+    "**/__tests__/**/*"
   ]
 }

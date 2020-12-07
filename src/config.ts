@@ -1,5 +1,6 @@
 import { getInput } from '@actions/core';
 import { Array, Record, Static, String, Undefined } from 'runtypes';
+import { pullRequestBody } from './pr-message';
 
 const parseMultiInput = (multilineInput) => {
   if (!multilineInput) return multilineInput;
@@ -17,7 +18,7 @@ export const GithubActionsConfig = Record({
    * according to the folder structure in this directory.
    * You can also set a base path to change this behaviour.
    */
-  files: Array(String), // files
+  files: Array(String).Or(Undefined), // files
 
   /**
    * Github Token must be a personal one, not {{ secret.GITHUB_TOKEN }}!
@@ -37,13 +38,45 @@ export const GithubActionsConfig = Record({
    * if base-path is not applied.
    */
   basePath: String.Or(Undefined), // base-path
+
+  /**
+   * Commit message.
+   *
+   * Defaults to 'chore(kopier): update files'
+   */
+  commitMessage: String.Or(Undefined),
+
+  /**
+   * Pull Request title
+   *
+   * Defaults to: 'chore(kopier): update files'
+   */
+  pullRequestTitle: String.Or(Undefined),
+
+  /**
+   * Pull Request body
+   *
+   * check [pr-message.ts][pr-message.ts] for default.
+   */
+  pullRequestBody: String.Or(Undefined),
 });
 
 export type GithubActionsConfigType = Static<typeof GithubActionsConfig>;
 
-export const githubActionConfig = (): GithubActionsConfigType => GithubActionsConfig.check({
-  files: parseMultiInput(getInput('files')) || ['templates/**'],
-  githubToken: getInput('github-token', { required: true }),
-  repos: parseMultiInput(getInput('repos', { required: true })),
-  basePath: getInput('base-path'),
-});
+export const githubActionConfig = (): GithubActionsConfigType => {
+  const input = GithubActionsConfig.check({
+    files: parseMultiInput(getInput('files')),
+    githubToken: getInput('github-token', { required: true }),
+    repos: parseMultiInput(getInput('repos', { required: true })),
+    basePath: getInput('base-path'),
+  });
+  return {
+    ...input,
+    files: input.files || ['templates/**'],
+    commitMessage:
+      input.commitMessage || 'chore(kopier): update files from {{github.name}}',
+    pullRequestTitle:
+      input.pullRequestTitle || 'chore(kopier): update files {{github.name}}',
+    pullRequestBody: input.pullRequestBody || pullRequestBody,
+  };
+};
