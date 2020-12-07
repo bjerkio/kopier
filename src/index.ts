@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as util from 'util';
 import * as chalk from 'chalk';
+import * as fs from 'fs';
 import * as mime from 'mime-types';
 import { githubActionConfig } from './config';
 import { getFiles, getKopierConfig, getNewPath, saveFile } from './files';
@@ -52,11 +53,14 @@ export async function run(): Promise<void> {
       await Promise.all(
         files.map(async (file) => {
           const m = mime.lookup(file);
+          const s = fs.lstatSync(file);
           const p = getNewPath(repoDir, file, origRepoPath);
 
           if (m === 'text/x-handlebars-template') {
             const fileContent = await parseTemplateFile(context, file);
             await saveFile(p, fileContent);
+          } else if (s.isDirectory()) {
+            await io.mkdirP(file);
           } else {
             await io.cp(file, p);
           }

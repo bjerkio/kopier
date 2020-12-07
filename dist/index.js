@@ -13684,6 +13684,7 @@ const core = __webpack_require__(470);
 const io = __webpack_require__(1);
 const util = __webpack_require__(669);
 const chalk = __webpack_require__(843);
+const fs = __webpack_require__(747);
 const mime = __webpack_require__(779);
 const config_1 = __webpack_require__(531);
 const files_1 = __webpack_require__(104);
@@ -13712,10 +13713,14 @@ function run() {
             core.info(chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'));
             yield Promise.all(files.map((file) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                 const m = mime.lookup(file);
+                const s = fs.lstatSync(file);
                 const p = files_1.getNewPath(repoDir, file, origRepoPath);
                 if (m === 'text/x-handlebars-template') {
                     const fileContent = yield template_1.parseTemplateFile(context, file);
                     yield files_1.saveFile(p, fileContent);
+                }
+                else if (s.isDirectory()) {
+                    yield io.mkdirP(file);
                 }
                 else {
                     yield io.cp(file, p);
