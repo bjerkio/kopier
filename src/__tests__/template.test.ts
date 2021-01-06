@@ -1,6 +1,6 @@
-import { parseTemplateFile } from "../template"
+import { parseTemplateFile } from '../template';
 import type { ReposGetResponseData } from '@octokit/types';
-import type { Commit } from 'git-last-commit';
+import type { Commit } from '../git-commit';
 
 jest.mock('fs', () => ({
   readFileSync: jest.fn((file: string): string => {
@@ -19,9 +19,10 @@ describe('Template', () => {
           hello: 'world',
         },
         commit: {} as Commit,
+        origin: {} as ReposGetResponseData,
       },
       'file.hbs',
     );
     expect(res).toBe(`hello: world`);
-  })
-})
+  });
+});

@@ -13645,6 +13645,7 @@ function run() {
         const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
         const commit = yield git_commit_1.getLastCommit(origRepoPath);
         const origin = yield git_1.getRepoInfo(process.env.GITHUB_REPOSITORY);
+        commit.subject = git_commit_1.sanitizeCommitMessage(commit.subject);
         yield Promise.all(repos.map((repo) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
             const [repoInfo, repoDir] = yield git_1.cloneRepository(repo);
@@ -20370,7 +20371,17 @@ module.exports = (promise, onFinally) => {
 /* 699 */,
 /* 700 */,
 /* 701 */,
-/* 702 */,
+/* 702 */
+/***/ (function(module) {
+
+"use strict";
+
+
+// https://regex101.com/r/SQrOlx/14
+module.exports = () => /(?:(?<![/\w-.])\w[\w-.]+\/\w[\w-.]+|\B)#[1-9]\d*\b/g;
+
+
+/***/ }),
 /* 703 */,
 /* 704 */,
 /* 705 */,
@@ -22539,9 +22550,10 @@ function populateMaps (extensions, types) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getLastCommit = void 0;
+exports.sanitizeCommitMessage = exports.getLastCommit = void 0;
 const tslib_1 = __webpack_require__(422);
 const exec = __webpack_require__(986);
+const issue_regex_1 = __webpack_require__(702);
 function executeCommand(command, args, options) {
     return new Promise((resolve, reject) => {
         let out = '';
@@ -22608,6 +22620,19 @@ function getLastCommit(cwd) {
     });
 }
 exports.getLastCommit = getLastCommit;
+function sanitizeCommitMessage(msg, orgName = process.env.GITHUB_REPOSITORY) {
+    const refs = msg.match(issue_regex_1.default());
+    refs
+        .filter((r) => {
+        const [org] = r.split('#');
+        return !org;
+    })
+        .map((r) => {
+        msg = msg.replace(r, `${orgName}#${r}`);
+    });
+    return msg;
+}
+exports.sanitizeCommitMessage = sanitizeCommitMessage;
 //# sourceMappingURL=git-commit.js.map
 
 /***/ }),
