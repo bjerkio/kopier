@@ -21,7 +21,7 @@ import {
   getRepoInfo,
 } from './git';
 import { parseTemplateFile } from './template';
-import { getLastCommit } from './git-commit';
+import { getLastCommit, sanitizeCommitMessage } from './git-commit';
 
 export async function run(): Promise<void> {
   const { repos } = githubActionConfig();
@@ -30,8 +30,9 @@ export async function run(): Promise<void> {
   const files = await getFiles();
   const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
   const commit = await getLastCommit(origRepoPath);
-
   const origin = await getRepoInfo(process.env.GITHUB_REPOSITORY);
+
+  commit.subject = sanitizeCommitMessage(commit.subject);
 
   await Promise.all(
     repos.map(async (repo) => {

@@ -1,4 +1,5 @@
 import * as exec from '@actions/exec';
+import issueRegex from 'issue-regex';
 
 export interface Commit {
   shortHash: string;
@@ -102,4 +103,22 @@ export async function getLastCommit(cwd?: string): Promise<Commit> {
     branch,
     tags,
   };
+}
+
+export function sanitizeCommitMessage(
+  msg: string,
+  orgName: string = process.env.GITHUB_REPOSITORY,
+): string {
+  const refs = msg.match(issueRegex());
+
+  refs
+    .filter((r) => {
+      const [org] = r.split('#');
+      return !org;
+    })
+    .map((r) => {
+      msg = msg.replace(r, `${orgName}#${r}`);
+    });
+
+  return msg;
 }
