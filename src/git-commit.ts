@@ -117,7 +117,7 @@ export function sanitizeCommitMessage(
       return !org;
     })
     .map((r) => {
-      msg = msg.replace(r, `${orgName}#${r}`);
+      msg = msg.replace(r, `${orgName}${r}`);
     });
 
   return msg;

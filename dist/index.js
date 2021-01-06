@@ -22628,7 +22628,7 @@ function sanitizeCommitMessage(msg, orgName = process.env.GITHUB_REPOSITORY) {
         return !org;
     })
         .map((r) => {
-        msg = msg.replace(r, `${orgName}#${r}`);
+        msg = msg.replace(r, `${orgName}${r}`);
     });
     return msg;
 }
