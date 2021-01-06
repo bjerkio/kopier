@@ -22553,7 +22553,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.sanitizeCommitMessage = exports.getLastCommit = void 0;
 const tslib_1 = __webpack_require__(422);
 const exec = __webpack_require__(986);
-const issue_regex_1 = __webpack_require__(702);
+const issueRegex = __webpack_require__(702);
 function executeCommand(command, args, options) {
     return new Promise((resolve, reject) => {
         let out = '';
@@ -22621,7 +22621,7 @@ function getLastCommit(cwd) {
 }
 exports.getLastCommit = getLastCommit;
 function sanitizeCommitMessage(msg, orgName = process.env.GITHUB_REPOSITORY) {
-    const refs = msg.match(issue_regex_1.default());
+    const refs = msg.match(issueRegex());
     refs
         .filter((r) => {
         const [org] = r.split('#');

@@ -1,5 +1,5 @@
 import * as exec from '@actions/exec';
-import issueRegex from 'issue-regex';
+import issueRegex = require('issue-regex');
 
 export interface Commit {
   shortHash: string;
