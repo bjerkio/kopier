@@ -7,9 +7,7 @@
 
 # Kopier
 
-**This repository is not ready. It still requires a few functionalities in order to function. See [index.ts](src/index.ts) for more information**
-
-Kopier makes use of Github Actions to generate/copy files across multiple repositories. The software is inspired
+Kopier is a Github Action made to generate/copy files across multiple repositories. The software is inspired
 initially by [Copybara](https://github.com/google/copybara) and a continuation of [Tabetalt's Kopier](https://github.com/tabetalt/kopier).
 
 ## Features
