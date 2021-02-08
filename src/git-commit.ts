@@ -109,7 +109,7 @@ export function sanitizeCommitMessage(
   msg: string,
   orgName: string = process.env.GITHUB_REPOSITORY,
 ): string {
-  const refs = msg.match(issueRegex());
+  const refs = msg.match(issueRegex()) || [];
 
   refs
     .filter((r) => {
