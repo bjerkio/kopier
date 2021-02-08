@@ -22621,7 +22621,7 @@ function getLastCommit(cwd) {
 }
 exports.getLastCommit = getLastCommit;
 function sanitizeCommitMessage(msg, orgName = process.env.GITHUB_REPOSITORY) {
-    const refs = msg.match(issueRegex());
+    const refs = msg.match(issueRegex()) || [];
     refs
         .filter((r) => {
         const [org] = r.split('#');
