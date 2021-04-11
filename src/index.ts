@@ -101,6 +101,9 @@ export async function run(): Promise<void> {
   );
 }
 
-run().catch((e) => {
-  core.error(e);
-});
+try {
+  run();
+} catch (error) {
+  core.setFailed(error);
+  throw error;
+}
