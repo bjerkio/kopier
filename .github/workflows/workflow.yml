@@ -1,12 +1,12 @@
-name: Update dist files
+name: Packaging
 on:
   push:
     branches:
       - main
-      - master
 
 jobs:
-  update-dist:
+  update-dist-and-release:
+    name: Update dist files and release
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,3 +18,8 @@ jobs:
           commit_message: 'chore(dist): Update dist [automated commit]'
           commit_user_name: Bjerk Bot
           commit_user_email: bjerk-bot@users.noreply.github.com
+      - uses: GoogleCloudPlatform/release-please-action@v2
+        id: release
+        with:
+          token: ${{ secrets.BJERKBOT_GITHUB_TOKEN }}
+          release-type: node

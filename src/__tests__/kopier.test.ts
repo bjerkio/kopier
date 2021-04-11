@@ -1,5 +1,5 @@
-import { run } from '..';
-import { cp } from '@actions/io'
+// import { run } from '..';
+// import { cp } from '@actions/io'
 
 jest.mock('fs', () => ({
   writeFileSync: jest.fn(),
@@ -10,8 +10,9 @@ jest.mock('fs', () => ({
 }));
 
 describe('Kopier Service', () => {
-  it('should copy files', async () => {
-    await run();
-    expect(cp).toBeCalled();
-  });
+  // it('should copy files', async () => {
+  //   await run();
+  //   expect(cp).toBeCalled();
+  // });
+  it.todo('should copy files');
 })

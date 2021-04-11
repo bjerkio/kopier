@@ -26,5 +26,8 @@ jobs:
       - name: Build GHA
         run: yarn build
 
+      - name: Test GHA
+        run: yarn test
+
       - name: Upload Code Coverage
         run: npx codecov

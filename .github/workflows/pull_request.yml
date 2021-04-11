@@ -45,17 +45,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
-      - run: yarn install
+      - name: Install dependencies
+        run: yarn install
 
-      - name: Cache dist files
-        id: dist-cache
-        uses: actions/cache@v2
-        with:
-          path: dist/
-          key: ${{ runner.os }}-build-${{ github.ref }}
+      - name: Build GHA
+        run: yarn build
 
-      - run: yarn build
-        if: steps.dist-cache.outputs.cache-hit != 'true'
+      - name: Test GHA
+        run: yarn test
+
+      - name: Upload Code Coverage
+        run: npx codecov
 
       - uses: dorny/paths-filter@v2
         id: changes
