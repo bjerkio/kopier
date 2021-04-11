@@ -4,6 +4,7 @@ on:
 
 jobs:
   check-if-dist-changed:
+    name: Check if `dist/` is changed
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
