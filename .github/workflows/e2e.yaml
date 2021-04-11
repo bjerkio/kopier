@@ -11,5 +11,5 @@ jobs:
         with:
           repos: |
             bjerkio/kopier-example
-          github-token: ${{ secrets.PRIVATE_GITHUB_TOKEN }}
+          github-token: ${{ secrets.BJERKBOT_GITHUB_TOKEN }}
           files: example/templates/**
