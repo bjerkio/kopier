@@ -5047,22 +5047,13 @@ function saveFile(p, body) {
 exports.saveFile = saveFile;
 function createTempDirectory() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const IS_WINDOWS = process.platform === 'win32';
         let tempDirectory = process.env['RUNNER_TEMP'] || '';
         if (!tempDirectory) {
-            let baseLocation;
-            if (IS_WINDOWS) {
-                baseLocation = process.env['USERPROFILE'] || 'C:\\';
-            }
-            else {
-                if (process.platform === 'darwin') {
-                    baseLocation = '/Users';
-                }
-                else {
-                    baseLocation = '/home';
-                }
-            }
-            tempDirectory = path.join(baseLocation, 'actions', 'temp');
+            const baseLocation = {
+                darwin: '/Users',
+                win32: process.env['USERPROFILE'] || 'C:\\',
+            };
+            tempDirectory = path.join(baseLocation[process.platform] || '/home', 'actions', 'temp');
         }
         const dest = path.join(tempDirectory, uuid_1.v4());
         yield io.mkdirP(dest);
@@ -16752,7 +16743,31 @@ module.exports = {"application/1d-interleaved-parityfec":{"source":"iana"},"appl
 /* 515 */,
 /* 516 */,
 /* 517 */,
-/* 518 */,
+/* 518 */
+/***/ (function(__unusedmodule, exports) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.prettyFormat = exports.splitCharacter = void 0;
+exports.splitCharacter = '<##>';
+exports.prettyFormat = [
+    '%h',
+    '%H',
+    '%s',
+    '%f',
+    '%b',
+    '%at',
+    '%ct',
+    '%an',
+    '%ae',
+    '%cn',
+    '%ce',
+    '%N',
+];
+//# sourceMappingURL=constants.js.map
+
+/***/ }),
 /* 519 */,
 /* 520 */,
 /* 521 */
@@ -22558,6 +22573,7 @@ exports.sanitizeCommitMessage = exports.getLastCommit = void 0;
 const tslib_1 = __webpack_require__(422);
 const exec = __webpack_require__(986);
 const issueRegex = __webpack_require__(702);
+const constants_1 = __webpack_require__(518);
 function executeCommand(command, args, options) {
     return new Promise((resolve, reject) => {
         let out = '';
@@ -22579,27 +22595,12 @@ function executeCommand(command, args, options) {
 }
 function getLastCommit(cwd) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const splitCharacter = '<##>';
-        const prettyFormat = [
-            '%h',
-            '%H',
-            '%s',
-            '%f',
-            '%b',
-            '%at',
-            '%ct',
-            '%an',
-            '%ae',
-            '%cn',
-            '%ce',
-            '%N',
-        ];
-        const resLog = yield executeCommand('git', ['log', '-1', `--pretty=format:"${prettyFormat.join(splitCharacter)}"`], { cwd });
-        const branch = yield executeCommand('git', ['rev-parse', '--abbrev-ref', 'HEAD'], { cwd });
-        const tagsRaw = yield executeCommand('git', ['tag', '--contains', 'HEAD'], {
-            cwd,
-        });
-        const a = resLog.replace('"', '').split(splitCharacter);
+        const [resLog, branch, tagsRaw] = yield Promise.all([
+            ['log', '-1', `--pretty=format:"${constants_1.prettyFormat.join(constants_1.splitCharacter)}"`],
+            ['rev-parse', '--abbrev-ref', 'HEAD'],
+            ['tag', '--contains', 'HEAD'],
+        ].map((args) => executeCommand('git', args, { cwd })));
+        const a = resLog.replace('"', '').split(constants_1.splitCharacter);
         const tags = tagsRaw.split('\n');
         return {
             shortHash: a[0],
