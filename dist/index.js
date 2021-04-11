@@ -13691,9 +13691,13 @@ function run() {
     });
 }
 exports.run = run;
-run().catch((e) => {
-    core.error(e);
-});
+try {
+    run();
+}
+catch (error) {
+    core.setFailed(error);
+    throw error;
+}
 //# sourceMappingURL=index.js.map
 
 /***/ }),
