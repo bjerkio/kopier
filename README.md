@@ -1,9 +1,9 @@
 ![Kopier](.github/kopier-logo.png)
 
-[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/bjerkio/vault-action.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bjerkio/vault-action/context:javascript)
-[![codecov](https://codecov.io/gh/bjerkio/vault-action/branch/master/graph/badge.svg)](https://codecov.io/gh/bjerkio/vault-action)
-![Build & Deploy](https://github.com/bjerkio/vault-action/workflows/Build%20&%20Deploy/badge.svg?branch=master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/c5fefa8af6f5a5466d2a/maintainability)](https://codeclimate.com/github/bjerkio/vault-action/maintainability)
+[![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/bjerkio/kopier.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bjerkio/kopier/context:javascript)
+[![codecov](https://codecov.io/gh/bjerkio/kopier/branch/master/graph/badge.svg)](https://codecov.io/gh/bjerkio/kopier)
+![Build & Deploy](https://github.com/bjerkio/kopier/workflows/Build%20&%20Deploy/badge.svg?branch=master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/009a73ce45cab4fbb217/maintainability)](https://codeclimate.com/github/bjerkio/kopier/maintainability)
 
 # Kopier
 
@@ -63,6 +63,8 @@ Apart from this README, you can find details and examples of using the SDK in th
 
 - [adrianjost/files-sync-action](https://github.com/adrianjost/files-sync-action)
 - [andsor/copycat-action](https://github.com/marketplace/actions/copycat-action)
+- [jkcfg/jk](https://github.com/jkcfg/jk)
+- [Clever/microplane](https://github.com/Clever/microplane)
 
 # Contribute
 
