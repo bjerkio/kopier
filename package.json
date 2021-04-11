@@ -3,7 +3,7 @@
   "version": "1.1.6",
   "description": "Export secrets from Vault into Github Actions",
   "engines": {
-    "node": ">= 12.13 <13"
+    "node": ">= 14.16"
   },
   "devDependencies": {
     "@octokit/fixtures": "^21.2.5",
@@ -65,7 +65,7 @@
     "uuid": "^8.3.1"
   },
   "volta": {
-    "node": "12.13.0",
+    "node": "14.16.0",
     "yarn": "1.22.10"
   }
 }
