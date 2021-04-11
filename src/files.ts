@@ -48,23 +48,19 @@ export async function saveFile(p: string, body: string): Promise<void> {
 }
 
 export async function createTempDirectory(): Promise<string> {
-  const IS_WINDOWS = process.platform === 'win32';
-
   let tempDirectory: string = process.env['RUNNER_TEMP'] || '';
 
   if (!tempDirectory) {
-    let baseLocation: string;
-    if (IS_WINDOWS) {
-      // On Windows use the USERPROFILE env variable
-      baseLocation = process.env['USERPROFILE'] || 'C:\\';
-    } else {
-      if (process.platform === 'darwin') {
-        baseLocation = '/Users';
-      } else {
-        baseLocation = '/home';
-      }
-    }
-    tempDirectory = path.join(baseLocation, 'actions', 'temp');
+    const baseLocation: Record<'darwin' | 'win32', string> = {
+      darwin: '/Users',
+      win32: process.env['USERPROFILE'] || 'C:\\',
+    };
+
+    tempDirectory = path.join(
+      baseLocation[process.platform] || '/home',
+      'actions',
+      'temp',
+    );
   }
 
   const dest = path.join(tempDirectory, uuidV4());

@@ -1,5 +1,6 @@
 import * as exec from '@actions/exec';
 import issueRegex = require('issue-regex');
+import { prettyFormat, splitCharacter } from './constants';
 
 export interface Commit {
   shortHash: string;
@@ -47,40 +48,15 @@ function executeCommand(
 }
 
 export async function getLastCommit(cwd?: string): Promise<Commit> {
-  const splitCharacter = '<##>';
-  const prettyFormat = [
-    '%h',
-    '%H',
-    '%s',
-    '%f',
-    '%b',
-    '%at',
-    '%ct',
-    '%an',
-    '%ae',
-    '%cn',
-    '%ce',
-    '%N',
-  ];
-
-  const resLog = await executeCommand(
-    'git',
-    ['log', '-1', `--pretty=format:"${prettyFormat.join(splitCharacter)}"`],
-    { cwd },
+  const [resLog, branch, tagsRaw] = await Promise.all(
+    [
+      ['log', '-1', `--pretty=format:"${prettyFormat.join(splitCharacter)}"`],
+      ['rev-parse', '--abbrev-ref', 'HEAD'],
+      ['tag', '--contains', 'HEAD'],
+    ].map((args) => executeCommand('git', args, { cwd })),
   );
-
-  const branch = await executeCommand(
-    'git',
-    ['rev-parse', '--abbrev-ref', 'HEAD'],
-    { cwd },
-  );
-
-  const tagsRaw = await executeCommand('git', ['tag', '--contains', 'HEAD'], {
-    cwd,
-  });
 
   const a = resLog.replace('"', '').split(splitCharacter);
-
   const tags = tagsRaw.split('\n');
 
   return {
