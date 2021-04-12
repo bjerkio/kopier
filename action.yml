@@ -1,21 +1,21 @@
-name: 'Kopier'
-author: 'Bjerk AS'
-description: 'Github Actions to help share information across many repositories'
+name: Kopier Action
+author: Bjerk AS
+description: Github Actions to help share information across many repositories
 branding:
   icon: copy
   color: purple
 inputs:
     github-token:
-        description: 'Github Token'
+        description: Github Token
         required: true
     files:
-        description: 'Files to import. e.g. templates/**'
+        description: Files to import. e.g. templates/**
         required: false
     repos:
-        description: 'Repositories to push changes to'
+        description: Repositories to push changes to
         required: true
     base-path:
-        description: 'Only add files in a spesific folder, e.g. .github/workflows'
+        description: Only add files in a spesific folder, e.g. .github/workflows
         required: false
 runs:
     using: 'node12'
