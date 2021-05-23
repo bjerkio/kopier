@@ -26,6 +26,8 @@ import { getLastCommit, sanitizeCommitMessage } from './git-commit';
 export async function run(): Promise<void> {
   const { repos } = await makeConfig();
 
+  core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
+
   // TODO: Analyze if changed have been made in the template-dir
   const files = await getFiles();
   const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
