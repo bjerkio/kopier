@@ -17,16 +17,14 @@ import {
   cloneRepository,
   applyChanges,
   createBranch,
-  checkoutBranch,
   openPullRequest,
   getRepoInfo,
-  branchExists,
 } from './git';
 import { parseTemplateFile } from './template';
 import { getLastCommit, sanitizeCommitMessage } from './git-commit';
 
 export async function run(): Promise<void> {
-  const { repos } = await makeConfig(true);
+  const { repos, branchName } = await makeConfig(true);
 
   core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
 
@@ -50,19 +48,14 @@ export async function run(): Promise<void> {
         origin,
       };
 
-      const branchName = `kopier/${commit.shortHash}`;
+      const temporaryBranchName = `kopier/${commit.shortHash}`;
 
       core.info(
         chalk.bold(`${repo}: `) +
-          chalk.magenta(`Creating a new branch named ${branchName} in `),
+          chalk.magenta(`Creating a new branch named ${temporaryBranchName}`),
       );
 
-      const exists = await branchExists(branchName, context);
-      if (exists) {
-        await checkoutBranch(repoDir, branchName);
-      } else {
-        await createBranch(repoDir, branchName);
-      }
+      await createBranch(repoDir, temporaryBranchName);
 
       core.info(
         chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'),
@@ -98,7 +91,7 @@ export async function run(): Promise<void> {
       );
 
       // Commit the changes
-      await applyChanges(repoDir, context, branchName);
+      await applyChanges(repoDir, context, branchName ?? temporaryBranchName);
 
       // Open Pull Request
       try {

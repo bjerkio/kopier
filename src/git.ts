@@ -41,45 +41,11 @@ export async function cloneRepository(
   return [data, tmpDir];
 }
 
-export async function branchExists(
-  branch: string,
-  context: TemplateContext,
-): Promise<boolean> {
-  const { githubToken } = await makeConfig();
-  const {
-    github: { owner, name },
-  } = context;
-  const octokit = github.getOctokit(githubToken);
-  try {
-    const branchInfo = await octokit.rest.repos.getBranch({
-      repo: name,
-      owner: owner.login,
-      branch,
-    });
-    debug(`Found branch ${branchInfo}`);
-    return true;
-  } catch (e) {
-    if (e.message === 'Branch not found') {
-      return true;
-    }
-    throw new Error(`Failed to get branch: ${e.message}`);
-  }
-}
-
 export async function createBranch(
   repoDir: string,
   branchName: string,
 ): Promise<void> {
   await exec.exec('git checkout -b', [branchName], {
-    cwd: repoDir,
-  });
-}
-
-export async function checkoutBranch(
-  repoDir: string,
-  branchName: string,
-): Promise<void> {
-  await exec.exec('git checkout', [branchName], {
     cwd: repoDir,
   });
 }
