@@ -49,6 +49,15 @@ export async function createBranch(
   });
 }
 
+export async function setUpstream(
+  repoDir: string,
+  branchName: string,
+): Promise<void> {
+  await exec.exec(`git branch -u origin/${branchName}`, [], {
+    cwd: repoDir,
+  });
+}
+
 export async function addFileToIndex(
   repoDir: string,
   file: string,
@@ -70,7 +79,7 @@ export async function applyChanges(
     cwd: repoDir,
   });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-  await exec.exec(`git push --force -u`, [`origin/${branchName}`], {
+  await exec.exec(`git push --force -u origin `, [branchName], {
     cwd: repoDir,
   });
 }

@@ -19,6 +19,7 @@ import {
   createBranch,
   openPullRequest,
   getRepoInfo,
+  setUpstream,
 } from './git';
 import { parseTemplateFile } from './template';
 import { getLastCommit, sanitizeCommitMessage } from './git-commit';
@@ -90,8 +91,12 @@ export async function run(): Promise<void> {
         }),
       );
 
+      if (branchName) {
+        await setUpstream(repoDir, branchName);
+      }
+
       // Commit the changes
-      await applyChanges(repoDir, context, branchName ?? temporaryBranchName);
+      await applyChanges(repoDir, context, temporaryBranchName);
 
       // Open Pull Request
       try {
