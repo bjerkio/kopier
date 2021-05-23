@@ -1,4 +1,4 @@
-import { getInput } from '@actions/core';
+import { debug, getInput } from '@actions/core';
 import * as github from '@actions/github';
 import { Array, Record, Static, String } from 'runtypes';
 import { pullRequestBody } from './pr-message';
@@ -85,6 +85,7 @@ export const makeConfig = async (
   });
 
   if (!input.repos && getRepos && input.githubSearch) {
+    debug('Running search with Github API');
     const octokit = github.getOctokit(input.githubToken);
     const res = await octokit.rest.search.repos({
       q: input.githubSearch,

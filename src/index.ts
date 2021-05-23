@@ -24,7 +24,7 @@ import { parseTemplateFile } from './template';
 import { getLastCommit, sanitizeCommitMessage } from './git-commit';
 
 export async function run(): Promise<void> {
-  const { repos } = await makeConfig();
+  const { repos } = await makeConfig(true);
 
   core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
 
