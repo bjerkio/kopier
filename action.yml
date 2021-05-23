@@ -21,8 +21,8 @@ inputs:
   base-path:
     description: Only add files in a spesific folder, e.g. .github/workflows
     required: false
-  branch-name:
-    description: Set branch name to use one branch for all updates.
+  branch:
+    description: Set branch to use one for all updates.
     required: false
 runs:
   using: 'node12'

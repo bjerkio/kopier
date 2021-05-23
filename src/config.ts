@@ -90,7 +90,7 @@ export const makeConfig = async (
     repos: parseMultiInput(getInput('repos')),
     basePath: getInput('base-path'),
     githubSearch: getInput('github-search'),
-    branchName: getInput('branch-name'),
+    branchName: getInput('branch'),
   });
 
   if (!input.repos && getRepos && input.githubSearch) {
