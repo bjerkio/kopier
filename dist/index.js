@@ -4365,7 +4365,7 @@ function applyChanges(repoDir, context, branchName) {
             cwd: repoDir,
         });
         yield exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-        yield exec.exec(`git push --force -u origin `, [branchName], {
+        yield exec.exec(`git push --force -u`, [`origin/${branchName}`], {
             cwd: repoDir,
         });
     });
