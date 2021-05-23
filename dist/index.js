@@ -12820,6 +12820,7 @@ const git_commit_1 = __webpack_require__(780);
 function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { repos } = yield config_1.makeConfig();
+        core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
         const files = yield files_1.getFiles();
         const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
         const commit = yield git_commit_1.getLastCommit(origRepoPath);
