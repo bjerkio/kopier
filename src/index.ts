@@ -100,7 +100,7 @@ export async function run(): Promise<void> {
         }),
       );
 
-      if (branchName) {
+      if (branchName && exists) {
         await setUpstream(repoDir, branchName);
       }
 
