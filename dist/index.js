@@ -4307,7 +4307,7 @@ module.exports.env = opts => {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.openPullRequest = exports.applyChanges = exports.addFileToIndex = exports.createBranch = exports.cloneRepository = exports.getRepoInfo = void 0;
+exports.openPullRequest = exports.applyChanges = exports.addFileToIndex = exports.setUpstream = exports.createBranch = exports.cloneRepository = exports.getRepoInfo = void 0;
 const tslib_1 = __webpack_require__(422);
 const exec = __webpack_require__(986);
 const github = __webpack_require__(469);
@@ -4348,6 +4348,14 @@ function createBranch(repoDir, branchName) {
     });
 }
 exports.createBranch = createBranch;
+function setUpstream(repoDir, branchName) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        yield exec.exec(`git branch -u origin/${branchName}`, [], {
+            cwd: repoDir,
+        });
+    });
+}
+exports.setUpstream = setUpstream;
 function addFileToIndex(repoDir, file) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         yield exec.exec(`git add`, [file], { cwd: repoDir });
@@ -4365,7 +4373,7 @@ function applyChanges(repoDir, context, branchName) {
             cwd: repoDir,
         });
         yield exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-        yield exec.exec(`git push --force -u`, [`origin/${branchName}`], {
+        yield exec.exec(`git push --force origin HEAD:${branchName}`, [], {
             cwd: repoDir,
         });
     });
@@ -12860,14 +12868,17 @@ function run() {
                     const fileContent = yield template_1.parseTemplateFile(context, file);
                     const newFileName = files_1.removeLastExt(p);
                     yield files_1.saveFile(newFileName, fileContent);
-                    git_1.addFileToIndex(repoDir, newFileName);
+                    yield git_1.addFileToIndex(repoDir, newFileName);
                 }
                 else if (!s.isDirectory()) {
                     yield io.cp(file, p);
-                    git_1.addFileToIndex(repoDir, p);
+                    yield git_1.addFileToIndex(repoDir, p);
                 }
             })));
-            yield git_1.applyChanges(repoDir, context, branchName !== null && branchName !== void 0 ? branchName : temporaryBranchName);
+            if (branchName) {
+                yield git_1.setUpstream(repoDir, branchName);
+            }
+            yield git_1.applyChanges(repoDir, context, branchName);
             try {
                 const { html_url, number } = yield git_1.openPullRequest(branchName, context);
                 core.info(chalk.bold(`${repo}: `) +
