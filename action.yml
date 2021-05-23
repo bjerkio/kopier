@@ -5,22 +5,25 @@ branding:
   icon: copy
   color: purple
 inputs:
-    github-token:
-        description: Github Token
-        default: ${{ github.token }}
-        required: true
-    files:
-        description: Files to import. e.g. templates/**
-        required: false
-    github-search:
-        description: Search for repositories instead of implictly set them (e.g. «org:bjerkio topic:infra»)
-        required: false
-    repos:
-        description: Repositories to push changes to
-        required: true
-    base-path:
-        description: Only add files in a spesific folder, e.g. .github/workflows
-        required: false
+  github-token:
+    description: Github Token
+    default: ${{ github.token }}
+    required: true
+  files:
+    description: Files to import. e.g. templates/**
+    required: false
+  github-search:
+    description: Search for repositories instead of implictly set them (e.g. «org:bjerkio topic:infra»)
+    required: false
+  repos:
+    description: Repositories to push changes to
+    required: true
+  base-path:
+    description: Only add files in a spesific folder, e.g. .github/workflows
+    required: false
+  branch-name:
+    description: Set branch name to use one branch for all updates.
+    required: false
 runs:
-    using: 'node12'
-    main: 'dist/index.js'
+  using: 'node12'
+  main: 'dist/index.js'

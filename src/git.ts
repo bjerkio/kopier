@@ -1,3 +1,4 @@
+import { debug } from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 import { makeConfig } from './config';
@@ -40,11 +41,40 @@ export async function cloneRepository(
   return [data, tmpDir];
 }
 
+export async function branchExists(
+  branch: string,
+  context: TemplateContext,
+): Promise<boolean> {
+  const { githubToken } = await makeConfig();
+  const {
+    github: { owner, name },
+  } = context;
+  const octokit = github.getOctokit(githubToken);
+  try {
+    const branchInfo = await octokit.rest.repos.getBranch({
+      repo: name,
+      owner: owner.login,
+      branch,
+    });
+    debug(`Found branch ${branchInfo}`);
+    return true;
+  } catch (e) {
+    if (e.message === 'Branch not found') {
+      return true;
+    }
+    throw new Error(`Failed to get branch: ${e.message}`);
+  }
+}
+
 export async function createBranch(
   repoDir: string,
   branchName: string,
+  context: TemplateContext,
 ): Promise<void> {
-  await exec.exec(`git checkout -b`, [branchName], { cwd: repoDir });
+  const exists = await branchExists(branchName, context);
+  await exec.exec(exists ? `git checkout` : `git checkout -b`, [branchName], {
+    cwd: repoDir,
+  });
 }
 
 export async function addFileToIndex(
@@ -68,7 +98,7 @@ export async function applyChanges(
     cwd: repoDir,
   });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-  await exec.exec(`git push -u origin `, [branchName], { cwd: repoDir });
+  await exec.exec(`git push --force -u origin `, [branchName], { cwd: repoDir });
 }
 
 export async function openPullRequest(

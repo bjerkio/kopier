@@ -55,7 +55,7 @@ export async function run(): Promise<void> {
           chalk.magenta(`Creating a new branch named ${branchName} in `),
       );
 
-      await createBranch(repoDir, branchName);
+      await createBranch(repoDir, branchName, context);
 
       core.info(
         chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'),

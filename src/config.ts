@@ -69,6 +69,14 @@ export const GithubActionsConfig = Record({
    * Example: org:bjerkio topic:infrastructure
    */
   githubSearch: String.optional(),
+
+  /**
+   * Use one branch name for all updates.
+   *
+   * If the branch already exists, changes
+   * will be forcibly pushed.
+   */
+  branchName: String.optional(),
 });
 
 export type GithubActionsConfigType = Static<typeof GithubActionsConfig>;
@@ -82,6 +90,7 @@ export const makeConfig = async (
     repos: parseMultiInput(getInput('repos')),
     basePath: getInput('base-path'),
     githubSearch: getInput('github-search'),
+    branchName: getInput('branch-name'),
   });
 
   if (!input.repos && getRepos && input.githubSearch) {
