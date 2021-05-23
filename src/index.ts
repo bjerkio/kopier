@@ -96,7 +96,7 @@ export async function run(): Promise<void> {
       }
 
       // Commit the changes
-      await applyChanges(repoDir, context, temporaryBranchName);
+      await applyChanges(repoDir, context, branchName);
 
       // Open Pull Request
       try {

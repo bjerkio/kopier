@@ -79,7 +79,7 @@ export async function applyChanges(
     cwd: repoDir,
   });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-  await exec.exec(`git push --force -u origin `, [branchName], {
+  await exec.exec(`git push --force origin HEAD:${branchName}`, [], {
     cwd: repoDir,
   });
 }
