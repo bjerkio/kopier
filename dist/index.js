@@ -4307,8 +4307,9 @@ module.exports.env = opts => {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.openPullRequest = exports.applyChanges = exports.addFileToIndex = exports.setUpstream = exports.createBranch = exports.cloneRepository = exports.getRepoInfo = void 0;
+exports.openPullRequest = exports.applyChanges = exports.branchExists = exports.addFileToIndex = exports.setUpstream = exports.createBranch = exports.cloneRepository = exports.getRepoInfo = void 0;
 const tslib_1 = __webpack_require__(422);
+const core_1 = __webpack_require__(470);
 const exec = __webpack_require__(986);
 const github = __webpack_require__(469);
 const config_1 = __webpack_require__(531);
@@ -4362,7 +4363,30 @@ function addFileToIndex(repoDir, file) {
     });
 }
 exports.addFileToIndex = addFileToIndex;
-function applyChanges(repoDir, context, branchName) {
+function branchExists(branch, context) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const { githubToken } = yield config_1.makeConfig();
+        const { github: { owner, name }, } = context;
+        const octokit = github.getOctokit(githubToken);
+        try {
+            const branchInfo = yield octokit.rest.repos.getBranch({
+                repo: name,
+                owner: owner.login,
+                branch,
+            });
+            core_1.debug(`Found branch ${branchInfo}`);
+            return true;
+        }
+        catch (e) {
+            if (e.message === 'Branch not found') {
+                return true;
+            }
+            throw new Error(`Failed to get branch: ${e.message}`);
+        }
+    });
+}
+exports.branchExists = branchExists;
+function applyChanges(repoDir, context, branchName, exists) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
         const { commitMessage } = yield config_1.makeConfig();
         const message = yield template_1.parseTemplate(commitMessage, context);
@@ -4373,9 +4397,16 @@ function applyChanges(repoDir, context, branchName) {
             cwd: repoDir,
         });
         yield exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-        yield exec.exec(`git push --force origin HEAD:${branchName}`, [], {
-            cwd: repoDir,
-        });
+        if (exists) {
+            yield exec.exec(`git push --force origin HEAD:${branchName}`, [], {
+                cwd: repoDir,
+            });
+        }
+        else {
+            yield exec.exec(`git push --force -u origin `, [branchName], {
+                cwd: repoDir,
+            });
+        }
     });
 }
 exports.applyChanges = applyChanges;
@@ -12847,7 +12878,14 @@ function run() {
                 commit,
                 origin,
             };
-            const temporaryBranchName = `kopier/${commit.shortHash}`;
+            let temporaryBranchName = `kopier/${commit.shortHash}`;
+            let exists = true;
+            if (branchName) {
+                exists = yield git_1.branchExists(branchName, context);
+                if (!exists) {
+                    temporaryBranchName = branchName;
+                }
+            }
             core.info(chalk.bold(`${repo}: `) +
                 chalk.magenta(`Creating a new branch named ${temporaryBranchName}`));
             yield git_1.createBranch(repoDir, temporaryBranchName);
@@ -12878,7 +12916,7 @@ function run() {
             if (branchName) {
                 yield git_1.setUpstream(repoDir, branchName);
             }
-            yield git_1.applyChanges(repoDir, context, branchName);
+            yield git_1.applyChanges(repoDir, context, branchName, exists);
             try {
                 const { html_url, number } = yield git_1.openPullRequest(branchName, context);
                 core.info(chalk.bold(`${repo}: `) +
