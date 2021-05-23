@@ -1,4 +1,3 @@
-import { debug } from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 import { makeConfig } from './config';
