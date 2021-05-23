@@ -44,7 +44,9 @@ export async function createBranch(
   repoDir: string,
   branchName: string,
 ): Promise<void> {
-  await exec.exec(`git checkout -b`, [branchName], { cwd: repoDir });
+  await exec.exec('git checkout -b', [branchName], {
+    cwd: repoDir,
+  });
 }
 
 export async function addFileToIndex(
@@ -68,7 +70,9 @@ export async function applyChanges(
     cwd: repoDir,
   });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-  await exec.exec(`git push -u origin `, [branchName], { cwd: repoDir });
+  await exec.exec(`git push --force -u origin `, [branchName], {
+    cwd: repoDir,
+  });
 }
 
 export async function openPullRequest(

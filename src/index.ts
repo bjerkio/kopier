@@ -24,7 +24,7 @@ import { parseTemplateFile } from './template';
 import { getLastCommit, sanitizeCommitMessage } from './git-commit';
 
 export async function run(): Promise<void> {
-  const { repos } = await makeConfig(true);
+  const { repos, branchName } = await makeConfig(true);
 
   core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
 
@@ -48,14 +48,14 @@ export async function run(): Promise<void> {
         origin,
       };
 
-      const branchName = `kopier/${commit.shortHash}`;
+      const temporaryBranchName = `kopier/${commit.shortHash}`;
 
       core.info(
         chalk.bold(`${repo}: `) +
-          chalk.magenta(`Creating a new branch named ${branchName} in `),
+          chalk.magenta(`Creating a new branch named ${temporaryBranchName}`),
       );
 
-      await createBranch(repoDir, branchName);
+      await createBranch(repoDir, temporaryBranchName);
 
       core.info(
         chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'),
@@ -91,14 +91,22 @@ export async function run(): Promise<void> {
       );
 
       // Commit the changes
-      await applyChanges(repoDir, context, branchName);
+      await applyChanges(repoDir, context, branchName ?? temporaryBranchName);
 
       // Open Pull Request
-      const { html_url, number } = await openPullRequest(branchName, context);
-      core.info(
-        chalk.bold(`${repo}: `) +
-          chalk.magenta(`Created new pull request #${number} – ${html_url}`),
-      );
+      try {
+        const { html_url, number } = await openPullRequest(branchName, context);
+        core.info(
+          chalk.bold(`${repo}: `) +
+            chalk.magenta(`Created new pull request #${number} – ${html_url}`),
+        );
+      } catch (e) {
+        if (e.message && e.message.includes('A pull request already exists')) {
+          core.info('A pull request already exists');
+        } else {
+          throw e;
+        }
+      }
     }),
   );
 }
