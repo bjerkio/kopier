@@ -3,7 +3,7 @@ import * as io from '@actions/io';
 import * as chalk from 'chalk';
 import * as fs from 'fs';
 import * as mime from 'mime-types';
-import { githubActionConfig } from './config';
+import { makeConfig } from './config';
 import {
   getCleanPath,
   getFiles,
@@ -24,7 +24,7 @@ import { parseTemplateFile } from './template';
 import { getLastCommit, sanitizeCommitMessage } from './git-commit';
 
 export async function run(): Promise<void> {
-  const { repos } = githubActionConfig();
+  const { repos } = await makeConfig();
 
   // TODO: Analyze if changed have been made in the template-dir
   const files = await getFiles();
@@ -63,7 +63,7 @@ export async function run(): Promise<void> {
         files.map(async (file) => {
           const m = mime.lookup(file);
           const s = fs.lstatSync(file);
-          const p = getNewPath(repoDir, file, origRepoPath);
+          const p = await getNewPath(repoDir, file, origRepoPath);
 
           core.debug(
             `${file} (${m}) (${p}) – does exist? ${fs.existsSync(file)}`,

@@ -1,5 +1,6 @@
 import { getInput } from '@actions/core';
-import { Array, Record, Static, String, Undefined } from 'runtypes';
+import * as github from '@actions/github';
+import { Array, Record, Static, String } from 'runtypes';
 import { pullRequestBody } from './pr-message';
 
 const parseMultiInput = (multilineInput) => {
@@ -18,7 +19,7 @@ export const GithubActionsConfig = Record({
    * according to the folder structure in this directory.
    * You can also set a base path to change this behaviour.
    */
-  files: Array(String).Or(Undefined), // files
+  files: Array(String).optional(), // files
 
   /**
    * Github Token must be a personal one, not {{ secret.GITHUB_TOKEN }}!
@@ -31,7 +32,7 @@ export const GithubActionsConfig = Record({
    *
    * Can be defined as multiple lines or separated with comma (,).
    */
-  repos: Array(String), // repos
+  repos: Array(String).optional(), // repos
 
   /**
    * Files are looked for at root of the repository
@@ -39,46 +40,66 @@ export const GithubActionsConfig = Record({
    *
    * Defaults to `**`
    */
-  basePath: String.Or(Undefined), // base-path
+  basePath: String.optional(), // base-path
 
   /**
    * Commit message.
    *
    * Defaults to 'chore(kopier): update files'
    */
-  commitMessage: String.Or(Undefined),
+  commitMessage: String.optional(),
 
   /**
    * Pull Request title
    *
    * Defaults to: 'chore(kopier): update files'
    */
-  pullRequestTitle: String.Or(Undefined),
+  pullRequestTitle: String.optional(),
 
   /**
    * Pull Request body
    *
    * check [pr-message.ts][pr-message.ts] for default.
    */
-  pullRequestBody: String.Or(Undefined),
+  pullRequestBody: String.optional(),
+
+  /**
+   * Github Search
+   *
+   * Example: org:bjerkio topic:infrastructure
+   */
+  githubSearch: String.optional(),
 });
 
 export type GithubActionsConfigType = Static<typeof GithubActionsConfig>;
 
-export const githubActionConfig = (): GithubActionsConfigType => {
+export const makeConfig = async (
+  getRepos = false,
+): Promise<GithubActionsConfigType> => {
   const input = GithubActionsConfig.check({
     files: parseMultiInput(getInput('files')),
     githubToken: getInput('github-token', { required: true }),
-    repos: parseMultiInput(getInput('repos', { required: true })),
+    repos: parseMultiInput(getInput('repos')),
     basePath: getInput('base-path'),
+    githubSearch: getInput('github-search'),
   });
+
+  if (!input.repos && getRepos && input.githubSearch) {
+    const octokit = github.getOctokit(input.githubToken);
+    const res = await octokit.rest.search.repos({
+      q: input.githubSearch,
+    });
+    input.repos = res.data.items.map((i) => i.full_name);
+  }
+
   return {
     ...input,
-    files: input.files || ['**'],
-    basePath: input.basePath || 'templates/',
-    commitMessage: input.commitMessage || 'chore(kopier): {{commit.subject}}',
+    repos: input.repos ?? [],
+    files: input.files ?? ['**'],
+    basePath: input.basePath ?? 'templates/',
+    commitMessage: input.commitMessage ?? 'chore(kopier): {{commit.subject}}',
     pullRequestTitle:
-      input.pullRequestTitle || 'chore(kopier): {{commit.subject}}',
-    pullRequestBody: input.pullRequestBody || pullRequestBody,
+      input.pullRequestTitle ?? 'chore(kopier): {{commit.subject}}',
+    pullRequestBody: input.pullRequestBody ?? pullRequestBody,
   };
 };

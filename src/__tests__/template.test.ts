@@ -1,6 +1,8 @@
 import { parseTemplateFile } from '../template';
-import type { ReposGetResponseData } from '@octokit/types';
 import type { Commit } from '../git-commit';
+
+// TODO: Convert to @octokit/types@^6
+type ReposGetResponseData = any;
 
 jest.mock('fs', () => ({
   readFileSync: jest.fn((file: string): string => {

@@ -13,7 +13,7 @@ describe('files', () => {
     // @ts-ignore
     config.githubActionConfig = jest.fn(() => ({}));
 
-    const p = getNewPath(
+    const p = await getNewPath(
       '/tmp/the-repo',
       path.join('/tmp/the-new-repo', 'hello-file', 'up', 'there.txt'),
       '/tmp/the-new-repo',

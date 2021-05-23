@@ -3,11 +3,11 @@ import { v4 as uuidV4 } from 'uuid';
 import * as core from '@actions/core';
 import * as io from '@actions/io';
 import * as glob from '@actions/glob';
-import { githubActionConfig } from './config';
+import { makeConfig } from './config';
 import * as fs from 'fs';
 
 export async function getFiles(): Promise<string[]> {
-  const { files: configuredFiles, basePath } = githubActionConfig();
+  const { files: configuredFiles, basePath } = await makeConfig();
 
   const f = basePath
     ? configuredFiles.map((f) => path.join(basePath, f))
@@ -16,12 +16,12 @@ export async function getFiles(): Promise<string[]> {
   return globber.glob();
 }
 
-export function getNewPath(
+export async function getNewPath(
   repoDir: string,
   file: string,
   origRepoPath: string,
-): string {
-  const { basePath } = githubActionConfig();
+): Promise<string> {
+  const { basePath } = await makeConfig();
   let f = file.replace(origRepoPath, '');
   if (basePath) f = f.replace(basePath, '');
   return path.join(repoDir, f);
