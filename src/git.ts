@@ -1,3 +1,4 @@
+import { debug } from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 import { makeConfig } from './config';
@@ -65,10 +66,36 @@ export async function addFileToIndex(
   await exec.exec(`git add`, [file], { cwd: repoDir });
 }
 
+export async function branchExists(
+  branch: string,
+  context: TemplateContext,
+): Promise<boolean> {
+  const { githubToken } = await makeConfig();
+  const {
+    github: { owner, name },
+  } = context;
+  const octokit = github.getOctokit(githubToken);
+  try {
+    const branchInfo = await octokit.rest.repos.getBranch({
+      repo: name,
+      owner: owner.login,
+      branch,
+    });
+    debug(`Found branch ${branchInfo}`);
+    return true;
+  } catch (e) {
+    if (e.message === 'Branch not found') {
+      return true;
+    }
+    throw new Error(`Failed to get branch: ${e.message}`);
+  }
+}
+
 export async function applyChanges(
   repoDir: string,
   context: TemplateContext,
   branchName: string,
+  exists: boolean,
 ): Promise<void> {
   const { commitMessage } = await makeConfig();
   const message = await parseTemplate(commitMessage, context);
@@ -79,9 +106,15 @@ export async function applyChanges(
     cwd: repoDir,
   });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-  await exec.exec(`git push --force origin HEAD:${branchName}`, [], {
-    cwd: repoDir,
-  });
+  if (exists) {
+    await exec.exec(`git push --force origin HEAD:${branchName}`, [], {
+      cwd: repoDir,
+    });
+  } else {
+    await exec.exec(`git push --force -u origin `, [branchName], {
+      cwd: repoDir,
+    });
+  }
 }
 
 export async function openPullRequest(

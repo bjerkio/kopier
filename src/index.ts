@@ -20,6 +20,7 @@ import {
   openPullRequest,
   getRepoInfo,
   setUpstream,
+  branchExists,
 } from './git';
 import { parseTemplateFile } from './template';
 import { getLastCommit, sanitizeCommitMessage } from './git-commit';
@@ -49,7 +50,15 @@ export async function run(): Promise<void> {
         origin,
       };
 
-      const temporaryBranchName = `kopier/${commit.shortHash}`;
+      let temporaryBranchName = `kopier/${commit.shortHash}`;
+
+      let exists = true;
+      if (branchName) {
+        exists = await branchExists(branchName, context);
+        if (!exists) {
+          temporaryBranchName = branchName;
+        }
+      }
 
       core.info(
         chalk.bold(`${repo}: `) +
@@ -96,7 +105,7 @@ export async function run(): Promise<void> {
       }
 
       // Commit the changes
-      await applyChanges(repoDir, context, branchName);
+      await applyChanges(repoDir, context, branchName, exists);
 
       // Open Pull Request
       try {
