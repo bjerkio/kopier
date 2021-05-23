@@ -83,10 +83,10 @@ export async function run(): Promise<void> {
             const fileContent = await parseTemplateFile(context, file);
             const newFileName = removeLastExt(p);
             await saveFile(newFileName, fileContent);
-            addFileToIndex(repoDir, newFileName);
+            await addFileToIndex(repoDir, newFileName);
           } else if (!s.isDirectory()) {
             await io.cp(file, p);
-            addFileToIndex(repoDir, p);
+            await addFileToIndex(repoDir, p);
           }
         }),
       );
