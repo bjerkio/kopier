@@ -12819,7 +12819,7 @@ const template_1 = __webpack_require__(74);
 const git_commit_1 = __webpack_require__(780);
 function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const { repos } = yield config_1.makeConfig();
+        const { repos } = yield config_1.makeConfig(true);
         core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
         const files = yield files_1.getFiles();
         const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
@@ -16029,6 +16029,7 @@ const makeConfig = (getRepos = false) => tslib_1.__awaiter(void 0, void 0, void 
         githubSearch: core_1.getInput('github-search'),
     });
     if (!input.repos && getRepos && input.githubSearch) {
+        core_1.debug('Running search with Github API');
         const octokit = github.getOctokit(input.githubToken);
         const res = yield octokit.rest.search.repos({
             q: input.githubSearch,
