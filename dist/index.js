@@ -12913,7 +12913,7 @@ function run() {
                     yield git_1.addFileToIndex(repoDir, p);
                 }
             })));
-            if (branchName) {
+            if (branchName && exists) {
                 yield git_1.setUpstream(repoDir, branchName);
             }
             yield git_1.applyChanges(repoDir, context, branchName, exists);
