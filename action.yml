@@ -1,6 +1,6 @@
 name: Kopier Action
 author: Bjerk AS
-description: Github Actions to help share information across many repositories
+description: Helps manage multiple repositories.
 branding:
   icon: copy
   color: purple
@@ -9,20 +9,40 @@ inputs:
     description: Github Token
     default: ${{ github.token }}
     required: true
-  files:
-    description: Files to import. e.g. templates/**
+
+  repos:
+    description: List of repositories to add files to.
     required: false
-  github-search:
+
+  base-path:
+    description: Only add files in a spesific folder, e.g. templates/infra-code
+    required: false
+    default: templates/
+
+  commit-message:
+    description: Commit message.
+    required: false
+    default: "chore(kopier): {{commit.subject}}"
+
+  title:
+    description: Pull Request title
+    required: false
+    default: "chore(kopier): {{commit.subject}}"
+
+  body:
+    description: Pull Request body
+    required: false
+
+  query:
     description: Search for repositories instead of implictly set them (e.g. «org:bjerkio topic:infra»)
     required: false
-  repos:
-    description: Repositories to push changes to
-    required: true
-  base-path:
-    description: Only add files in a spesific folder, e.g. .github/workflows
+
+  head:
+    description: A branch name for updates.
     required: false
-  branch:
-    description: Set branch to use one for all updates.
+
+  base:
+    description: Base branch is where the pull request is opened. Defaults to default branch.
     required: false
 runs:
   using: 'node12'

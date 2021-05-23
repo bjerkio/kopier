@@ -1,126 +1,20 @@
 import * as core from '@actions/core';
-import * as io from '@actions/io';
-import * as chalk from 'chalk';
-import * as fs from 'fs';
-import * as mime from 'mime-types';
+import * as glob from '@actions/glob';
+import { parseLocalFile } from './classes/file';
 import { makeConfig } from './config';
-import {
-  getCleanPath,
-  getFiles,
-  getKopierConfig,
-  getNewPath,
-  removeLastExt,
-  saveFile,
-} from './files';
-import {
-  addFileToIndex,
-  cloneRepository,
-  applyChanges,
-  createBranch,
-  openPullRequest,
-  getRepoInfo,
-  setUpstream,
-  branchExists,
-} from './git';
-import { parseTemplateFile } from './template';
-import { getLastCommit, sanitizeCommitMessage } from './git-commit';
+import { ChangePR } from './classes/change-pr';
 
 export async function run(): Promise<void> {
-  const { repos, branchName } = await makeConfig(true);
+  const config = await makeConfig();
 
-  core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
+  const globber = await glob.create(config.basePath);
+  const originFiles = await globber.glob();
+  const files = await Promise.all(originFiles.map((f) => parseLocalFile(f)));
 
-  // TODO: Analyze if changed have been made in the template-dir
-  const files = await getFiles();
-  const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
-  const commit = await getLastCommit(origRepoPath);
-  const origin = await getRepoInfo(process.env.GITHUB_REPOSITORY);
-
-  commit.subject = sanitizeCommitMessage(commit.subject);
-
-  await Promise.all(
-    repos.map(async (repo) => {
-      core.info(chalk.bold(`${repo}: `) + chalk.magenta('Cloning repository'));
-      const [repoInfo, repoDir] = await cloneRepository(repo);
-
-      const context = {
-        github: repoInfo,
-        repo: await getKopierConfig(repoDir),
-        commit,
-        origin,
-      };
-
-      let temporaryBranchName = `kopier/${commit.shortHash}`;
-
-      let exists = true;
-      if (branchName) {
-        exists = await branchExists(branchName, context);
-        if (!exists) {
-          temporaryBranchName = branchName;
-        }
-      }
-
-      core.info(
-        chalk.bold(`${repo}: `) +
-          chalk.magenta(`Creating a new branch named ${temporaryBranchName}`),
-      );
-
-      await createBranch(repoDir, temporaryBranchName);
-
-      core.info(
-        chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'),
-      );
-
-      await Promise.all(
-        files.map(async (file) => {
-          const m = mime.lookup(file);
-          const s = fs.lstatSync(file);
-          const p = await getNewPath(repoDir, file, origRepoPath);
-
-          core.debug(
-            `${file} (${m}) (${p}) – does exist? ${fs.existsSync(file)}`,
-          );
-
-          try {
-            core.debug(`Creating directory ${getCleanPath(p)}`);
-            await io.mkdirP(getCleanPath(p));
-          } catch (e) {
-            core.debug(e);
-          }
-
-          if (m === 'text/x-handlebars-template') {
-            const fileContent = await parseTemplateFile(context, file);
-            const newFileName = removeLastExt(p);
-            await saveFile(newFileName, fileContent);
-            await addFileToIndex(repoDir, newFileName);
-          } else if (!s.isDirectory()) {
-            await io.cp(file, p);
-            await addFileToIndex(repoDir, p);
-          }
-        }),
-      );
-
-      if (branchName && exists) {
-        await setUpstream(repoDir, branchName);
-      }
-
-      // Commit the changes
-      await applyChanges(repoDir, context, branchName, exists);
-
-      // Open Pull Request
-      try {
-        const { html_url, number } = await openPullRequest(branchName, context);
-        core.info(
-          chalk.bold(`${repo}: `) +
-            chalk.magenta(`Created new pull request #${number} – ${html_url}`),
-        );
-      } catch (e) {
-        if (e.message && e.message.includes('A pull request already exists')) {
-          core.info('A pull request already exists');
-        } else {
-          throw e;
-        }
-      }
+  Promise.all(
+    config.repos.map(async (repo) => {
+      const pr = new ChangePR(config, repo, files);
+      return pr.createPullRequest();
     }),
   );
 }

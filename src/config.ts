@@ -8,108 +8,106 @@ const parseMultiInput = (multilineInput) => {
   return multilineInput.split(/,|\n/).map((e) => e.trim());
 };
 
-export const GithubActionsConfig = Record({
+export const Config = Record({
   /**
-   * Files. Defaults to `**`
-   * Can be glob.
-   *
-   * Can be multiple lines or separated with comma (,).
-   *
-   * Files will be added to the receiving repository
-   * according to the folder structure in this directory.
-   * You can also set a base path to change this behaviour.
-   */
-  files: Array(String).optional(), // files
-
-  /**
+   * `github-token`
    * Github Token must be a personal one, not {{ secret.GITHUB_TOKEN }}!
    * We recommend using a service account github profile.
+   *
    */
-  githubToken: String, // github-token
+  githubToken: String,
 
   /**
+   * `repos`
    * List of repositories to add files to.
    *
    * Can be defined as multiple lines or separated with comma (,).
    */
-  repos: Array(String).optional(), // repos
+  repos: Array(String).optional(),
 
   /**
+   * `base-path`
    * Files are looked for at root of the repository
    * if base-path is not applied.
-   *
-   * Defaults to `**`
    */
-  basePath: String.optional(), // base-path
+  basePath: String,
 
   /**
+   * `commit-message`
    * Commit message.
    *
    * Defaults to 'chore(kopier): update files'
    */
-  commitMessage: String.optional(),
+  commitMessage: String,
 
   /**
+   * `title`
    * Pull Request title
    *
    * Defaults to: 'chore(kopier): update files'
    */
-  pullRequestTitle: String.optional(),
+  title: String,
 
   /**
+   * `body`
    * Pull Request body
    *
    * check [pr-message.ts][pr-message.ts] for default.
    */
-  pullRequestBody: String.optional(),
+  body: String.optional(),
 
   /**
-   * Github Search
+   * `query`
+   * Github Search Query
    *
    * Example: org:bjerkio topic:infrastructure
    */
-  githubSearch: String.optional(),
+  query: String.optional(),
 
   /**
-   * Use one branch name for all updates.
+   * `head`
+   * A branch name the updates will be
+   * created from.
    *
-   * If the branch already exists, changes
-   * will be forcibly pushed.
+   * Defaults to kopier-{sha}
    */
-  branchName: String.optional(),
+  head: String.optional(),
+
+  /**
+   * Base branch is where the pull request should
+   * be opened.
+   *
+   * defaults to default branch
+   */
+  base: String.optional(),
 });
 
-export type GithubActionsConfigType = Static<typeof GithubActionsConfig>;
+export type Config = Static<typeof Config>;
 
-export const makeConfig = async (
-  getRepos = false,
-): Promise<GithubActionsConfigType> => {
-  const input = GithubActionsConfig.check({
-    files: parseMultiInput(getInput('files')),
+async function getRepos(token: string, q?: string) {
+  if (!q) return [];
+  debug('Running search with Github API');
+  const octokit = github.getOctokit(token);
+  const res = await octokit.rest.search.repos({ q });
+  return res.data.items.map((i) => i.full_name);
+}
+
+export const makeConfig = async (): Promise<Config> => {
+  const inputs = {
     githubToken: getInput('github-token', { required: true }),
     repos: parseMultiInput(getInput('repos')),
-    basePath: getInput('base-path'),
-    githubSearch: getInput('github-search'),
-    branchName: getInput('branch'),
-  });
-
-  if (!input.repos && getRepos && input.githubSearch) {
-    debug('Running search with Github API');
-    const octokit = github.getOctokit(input.githubToken);
-    const res = await octokit.rest.search.repos({
-      q: input.githubSearch,
-    });
-    input.repos = res.data.items.map((i) => i.full_name);
-  }
-
-  return {
-    ...input,
-    repos: input.repos ?? [],
-    files: input.files ?? ['**'],
-    basePath: input.basePath ?? 'templates/',
-    commitMessage: input.commitMessage ?? 'chore(kopier): {{commit.subject}}',
-    pullRequestTitle:
-      input.pullRequestTitle ?? 'chore(kopier): {{commit.subject}}',
-    pullRequestBody: input.pullRequestBody ?? pullRequestBody,
+    basePath: getInput('base-path', { required: true }),
+    commitMessage: getInput('commit-message', { required: true }),
+    title: getInput('title', { required: true }),
+    body: getInput('body'),
+    query: getInput('query'),
+    head: getInput('head'),
+    base: getInput('base'),
   };
+
+  return Config.check({
+    ...inputs,
+    repos: inputs.repos ?? (await getRepos(inputs.githubToken, inputs.query)),
+    body: inputs.body ?? pullRequestBody,
+  });
 };

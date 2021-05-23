@@ -149,11 +149,18 @@ export const get = jest.fn(() => ({
   },
 }));
 export const create = jest.fn(() => ({ data: { id: faker.random.word() } }));
+export const getCommit = jest.fn(() => ({ data: {} }));
 export const getOctokit = jest.fn(() => ({
-  repos: {
-    get,
-  },
-  pulls: {
-    create,
+  rest: {
+    repos: {
+      get,
+    },
+    pulls: {
+      create,
+    },
+    git: {
+      getCommit,
+    },
   },
 }));
+export const context = {};

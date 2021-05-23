@@ -13,7 +13,9 @@ export const config = {
     'octokit-fixture-org/hello-world',
     'octokit-fixture-org/hello-world',
   ].join(','),
-  'base-path': faker.system.directoryPath(),
+  'base-path': '/a-folder/here',
+  'commit-message': 'chore(kopier): {{commit.subject}}',
+  'title': 'chore(kopier): {{commit.subject}}',
 };
 
 export const getInput = jest.fn((name: string) => {
