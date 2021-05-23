@@ -7,9 +7,13 @@ branding:
 inputs:
     github-token:
         description: Github Token
+        default: ${{ github.token }}
         required: true
     files:
         description: Files to import. e.g. templates/**
+        required: false
+    github-search:
+        description: Search for repositories instead of implictly set them (e.g. «org:bjerkio topic:infra»)
         required: false
     repos:
         description: Repositories to push changes to

@@ -13,13 +13,15 @@ describe('files', () => {
     // @ts-ignore
     config.githubActionConfig = jest.fn(() => ({}));
 
-    const p = getNewPath(
-      '/tmp/the-repo',
-      path.join('/tmp/the-new-repo', 'hello-file', 'up', 'there.txt'),
-      '/tmp/the-new-repo',
+    const p = await getNewPath(
+      path.join('tmp', 'the-repo'),
+      path.join('tmp', 'the-new-repo', 'hello-file', 'up', 'there.txt'),
+      path.join('tmp', 'the-new-repo'),
     );
 
-    expect(p).toBe(`/tmp/the-repo/hello-file/up/there.txt`);
+    expect(p).toBe(
+      path.join('tmp', 'the-repo', 'hello-file', 'up', 'there.txt'),
+    );
   });
   it('should be able to get kopier config', async () => {
     const r = await getKopierConfig('');

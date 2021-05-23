@@ -1,20 +1,20 @@
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
-import type {
-  ReposGetResponseData,
-  PullsCreateResponseData,
-} from '@octokit/types';
-import { githubActionConfig } from './config';
+import { makeConfig } from './config';
 import { createTempDirectory } from './files';
 import { parseTemplate, TemplateContext } from './template';
 import { invariant } from './utils';
 
+// TODO: Convert to @octokit/types@^6
+type ReposGetResponseData = any;
+type PullsCreateResponseData = any;
+
 export async function getRepoInfo(name: string): Promise<ReposGetResponseData> {
-  const { githubToken } = githubActionConfig();
+  const { githubToken } = await makeConfig();
   const octokit = github.getOctokit(githubToken);
   const [owner, repo] = name.split('/');
 
-  const { data } = await octokit.repos.get({
+  const { data } = await octokit.rest.repos.get({
     owner,
     repo,
   });
@@ -27,7 +27,7 @@ export async function getRepoInfo(name: string): Promise<ReposGetResponseData> {
 export async function cloneRepository(
   name: string,
 ): Promise<[ReposGetResponseData, string]> {
-  const { githubToken } = githubActionConfig();
+  const { githubToken } = await makeConfig();
   const tmpDir = await createTempDirectory();
   const data = await getRepoInfo(name);
 
@@ -59,7 +59,7 @@ export async function applyChanges(
   context: TemplateContext,
   branchName: string,
 ): Promise<void> {
-  const { commitMessage } = githubActionConfig();
+  const { commitMessage } = await makeConfig();
   const message = await parseTemplate(commitMessage, context);
   await exec.exec(`git config user.email`, [context.commit.author.email], {
     cwd: repoDir,
@@ -75,16 +75,12 @@ export async function openPullRequest(
   branchName: string,
   context: TemplateContext,
 ): Promise<PullsCreateResponseData> {
-  const {
-    githubToken,
-    pullRequestBody,
-    pullRequestTitle,
-  } = githubActionConfig();
+  const { githubToken, pullRequestBody, pullRequestTitle } = await makeConfig();
   const {
     github: { owner, name, default_branch },
   } = context;
   const octokit = github.getOctokit(githubToken);
-  const { data: pullRequest } = await octokit.pulls.create({
+  const { data: pullRequest } = await octokit.rest.pulls.create({
     owner: owner.login,
     repo: name,
     head: branchName,
