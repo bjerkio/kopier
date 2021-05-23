@@ -17,8 +17,10 @@ import {
   cloneRepository,
   applyChanges,
   createBranch,
+  checkoutBranch,
   openPullRequest,
   getRepoInfo,
+  branchExists,
 } from './git';
 import { parseTemplateFile } from './template';
 import { getLastCommit, sanitizeCommitMessage } from './git-commit';
@@ -55,7 +57,12 @@ export async function run(): Promise<void> {
           chalk.magenta(`Creating a new branch named ${branchName} in `),
       );
 
-      await createBranch(repoDir, branchName, context);
+      const exists = await branchExists(branchName, context);
+      if (exists) {
+        await checkoutBranch(repoDir, branchName);
+      } else {
+        await createBranch(repoDir, branchName);
+      }
 
       core.info(
         chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'),
@@ -94,11 +101,19 @@ export async function run(): Promise<void> {
       await applyChanges(repoDir, context, branchName);
 
       // Open Pull Request
-      const { html_url, number } = await openPullRequest(branchName, context);
-      core.info(
-        chalk.bold(`${repo}: `) +
-          chalk.magenta(`Created new pull request #${number} – ${html_url}`),
-      );
+      try {
+        const { html_url, number } = await openPullRequest(branchName, context);
+        core.info(
+          chalk.bold(`${repo}: `) +
+            chalk.magenta(`Created new pull request #${number} – ${html_url}`),
+        );
+      } catch (e) {
+        if (e.message && e.message.includes('A pull request already exists')) {
+          core.info('A pull request already exists');
+        } else {
+          throw e;
+        }
+      }
     }),
   );
 }

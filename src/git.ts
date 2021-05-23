@@ -69,10 +69,17 @@ export async function branchExists(
 export async function createBranch(
   repoDir: string,
   branchName: string,
-  context: TemplateContext,
 ): Promise<void> {
-  const exists = await branchExists(branchName, context);
-  await exec.exec(exists ? `git checkout` : `git checkout -b`, [branchName], {
+  await exec.exec('git checkout -b', [branchName], {
+    cwd: repoDir,
+  });
+}
+
+export async function checkoutBranch(
+  repoDir: string,
+  branchName: string,
+): Promise<void> {
+  await exec.exec('git checkout', [branchName], {
     cwd: repoDir,
   });
 }
@@ -98,7 +105,9 @@ export async function applyChanges(
     cwd: repoDir,
   });
   await exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-  await exec.exec(`git push --force -u origin `, [branchName], { cwd: repoDir });
+  await exec.exec(`git push --force -u origin `, [branchName], {
+    cwd: repoDir,
+  });
 }
 
 export async function openPullRequest(
