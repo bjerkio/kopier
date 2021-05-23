@@ -4342,7 +4342,9 @@ function cloneRepository(name) {
 exports.cloneRepository = cloneRepository;
 function createBranch(repoDir, branchName) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        yield exec.exec(`git checkout -b`, [branchName], { cwd: repoDir });
+        yield exec.exec('git checkout -b', [branchName], {
+            cwd: repoDir,
+        });
     });
 }
 exports.createBranch = createBranch;
@@ -4363,7 +4365,9 @@ function applyChanges(repoDir, context, branchName) {
             cwd: repoDir,
         });
         yield exec.exec(`git commit -m`, [message, '--no-verify'], { cwd: repoDir });
-        yield exec.exec(`git push -u origin `, [branchName], { cwd: repoDir });
+        yield exec.exec(`git push --force -u origin `, [branchName], {
+            cwd: repoDir,
+        });
     });
 }
 exports.applyChanges = applyChanges;
@@ -12819,7 +12823,7 @@ const template_1 = __webpack_require__(74);
 const git_commit_1 = __webpack_require__(780);
 function run() {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const { repos } = yield config_1.makeConfig(true);
+        const { repos, branchName } = yield config_1.makeConfig(true);
         core.debug(`Running kopier on these repositories: ${repos.join(', ')}`);
         const files = yield files_1.getFiles();
         const origRepoPath = process.env.GITHUB_WORKSPACE || process.cwd();
@@ -12835,10 +12839,10 @@ function run() {
                 commit,
                 origin,
             };
-            const branchName = `kopier/${commit.shortHash}`;
+            const temporaryBranchName = `kopier/${commit.shortHash}`;
             core.info(chalk.bold(`${repo}: `) +
-                chalk.magenta(`Creating a new branch named ${branchName} in `));
-            yield git_1.createBranch(repoDir, branchName);
+                chalk.magenta(`Creating a new branch named ${temporaryBranchName}`));
+            yield git_1.createBranch(repoDir, temporaryBranchName);
             core.info(chalk.bold(`${repo}: `) + chalk.magenta('Copying and generating files'));
             yield Promise.all(files.map((file) => tslib_1.__awaiter(this, void 0, void 0, function* () {
                 const m = mime.lookup(file);
@@ -12863,10 +12867,20 @@ function run() {
                     git_1.addFileToIndex(repoDir, p);
                 }
             })));
-            yield git_1.applyChanges(repoDir, context, branchName);
-            const { html_url, number } = yield git_1.openPullRequest(branchName, context);
-            core.info(chalk.bold(`${repo}: `) +
-                chalk.magenta(`Created new pull request #${number} – ${html_url}`));
+            yield git_1.applyChanges(repoDir, context, branchName !== null && branchName !== void 0 ? branchName : temporaryBranchName);
+            try {
+                const { html_url, number } = yield git_1.openPullRequest(branchName, context);
+                core.info(chalk.bold(`${repo}: `) +
+                    chalk.magenta(`Created new pull request #${number} – ${html_url}`));
+            }
+            catch (e) {
+                if (e.message && e.message.includes('A pull request already exists')) {
+                    core.info('A pull request already exists');
+                }
+                else {
+                    throw e;
+                }
+            }
         })));
     });
 }
@@ -16018,6 +16032,7 @@ exports.GithubActionsConfig = runtypes_1.Record({
     pullRequestTitle: runtypes_1.String.optional(),
     pullRequestBody: runtypes_1.String.optional(),
     githubSearch: runtypes_1.String.optional(),
+    branchName: runtypes_1.String.optional(),
 });
 const makeConfig = (getRepos = false) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
@@ -16027,6 +16042,7 @@ const makeConfig = (getRepos = false) => tslib_1.__awaiter(void 0, void 0, void 
         repos: parseMultiInput(core_1.getInput('repos')),
         basePath: core_1.getInput('base-path'),
         githubSearch: core_1.getInput('github-search'),
+        branchName: core_1.getInput('branch'),
     });
     if (!input.repos && getRepos && input.githubSearch) {
         core_1.debug('Running search with Github API');
