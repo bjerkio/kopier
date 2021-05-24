@@ -24247,7 +24247,6 @@ function getRepos(token, q) {
     });
 }
 const makeConfig = () => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
     const inputs = {
         githubToken: (0,core.getInput)('token', { required: true }),
         repos: parseMultiInput((0,core.getInput)('repos')),
@@ -24259,7 +24258,7 @@ const makeConfig = () => __awaiter(void 0, void 0, void 0, function* () {
         head: (0,core.getInput)('head'),
         base: (0,core.getInput)('base'),
     };
-    return Config.check(Object.assign(Object.assign({}, inputs), { repos: (_a = inputs.repos) !== null && _a !== void 0 ? _a : (yield getRepos(inputs.githubToken, inputs.query)), body: (_b = inputs.body) !== null && _b !== void 0 ? _b : pullRequestBody }));
+    return Config.check(Object.assign(Object.assign({}, inputs), { repos: inputs.repos || (yield getRepos(inputs.githubToken, inputs.query)), body: inputs.body || pullRequestBody }));
 });
 
 // EXTERNAL MODULE: ./node_modules/@octokit/auth-action/dist-node/index.js

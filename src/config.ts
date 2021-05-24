@@ -107,7 +107,7 @@ export const makeConfig = async (): Promise<Config> => {
 
   return Config.check({
     ...inputs,
-    repos: inputs.repos ?? (await getRepos(inputs.githubToken, inputs.query)),
-    body: inputs.body ?? pullRequestBody,
+    repos: inputs.repos || (await getRepos(inputs.githubToken, inputs.query)),
+    body: inputs.body || pullRequestBody,
   });
 };
