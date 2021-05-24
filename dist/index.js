@@ -24288,6 +24288,7 @@ function invariant(condition, message) {
 
 
 
+
 class Template {
     constructor(config, repo, ghContext) {
         this.config = config;
@@ -24304,6 +24305,7 @@ class Template {
     }
     getContext() {
         return __awaiter(this, void 0, void 0, function* () {
+            (0,core.debug)('Building context');
             this.context = {
                 github: this.ghContext,
                 origin: yield this.getRepoInfo(this.ghContext.repo),
@@ -24321,12 +24323,14 @@ class Template {
     getLastCommit() {
         return __awaiter(this, void 0, void 0, function* () {
             const commit = yield this.octokit.rest.git.getCommit(Object.assign(Object.assign({}, this.ghContext.repo), { commit_sha: this.ghContext.sha }));
+            (0,core.debug)(`Commit data: ${JSON.stringify(commit.data)}`);
             return commit.data;
         });
     }
     getRepoInfo(repo) {
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield this.octokit.rest.repos.get(Object.assign({}, repo));
+            (0,core.debug)(`Repo data for ${repo.owner}/${repo.repo}: ${JSON.stringify(res.data)}`);
             return res.data;
         });
     }

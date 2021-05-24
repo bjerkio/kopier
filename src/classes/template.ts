@@ -1,3 +1,4 @@
+import { debug } from '@actions/core';
 import { context as githubContext, getOctokit } from '@actions/github';
 import { Endpoints } from '@octokit/types';
 import * as Handlebars from 'handlebars';
@@ -40,6 +41,7 @@ export class Template {
   }
 
   async getContext() {
+    debug('Building context');
     this.context = {
       github: this.ghContext,
       origin: await this.getRepoInfo(this.ghContext.repo),
@@ -61,6 +63,7 @@ export class Template {
       ...this.ghContext.repo,
       commit_sha: this.ghContext.sha,
     });
+    debug(`Commit data: ${JSON.stringify(commit.data)}`);
     return commit.data;
   }
 
@@ -68,7 +71,9 @@ export class Template {
     const res = await this.octokit.rest.repos.get({
       ...repo,
     });
-
+    debug(
+      `Repo data for ${repo.owner}/${repo.repo}: ${JSON.stringify(res.data)}`,
+    );
     return res.data;
   }
 }
