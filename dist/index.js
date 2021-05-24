@@ -24084,15 +24084,7 @@ var glob = __nccwpck_require__(8090);
 var mime_types = __nccwpck_require__(3583);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(5747);
-;// CONCATENATED MODULE: ./src/utils.ts
-function invariant(condition, message) {
-    if (!condition) {
-        throw new Error(message);
-    }
-}
-
 ;// CONCATENATED MODULE: ./src/classes/file.ts
-
 
 
 
@@ -24131,8 +24123,7 @@ function parseLocalFile(path) {
     return __awaiter(this, void 0, void 0, function* () {
         const localFile = external_fs_.readFileSync(path, 'utf-8');
         const m = yield mime_types.lookup(path);
-        invariant(m, `could not parse mime type on ${path}`);
-        return new File(path, localFile, m);
+        return new File(path, localFile, m || 'application/octet-stream');
     });
 }
 function isDirectory(path) {
@@ -24285,6 +24276,13 @@ function getOctokit(token) {
 
 // EXTERNAL MODULE: ./node_modules/handlebars/lib/index.js
 var handlebars_lib = __nccwpck_require__(7492);
+;// CONCATENATED MODULE: ./src/utils.ts
+function invariant(condition, message) {
+    if (!condition) {
+        throw new Error(message);
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/classes/template.ts
 
 

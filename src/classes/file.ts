@@ -1,6 +1,5 @@
 import * as mime from 'mime-types';
 import * as fs from 'fs';
-import { invariant } from '../utils';
 import { Template } from './template';
 
 export class File {
@@ -42,8 +41,7 @@ export class File {
 export async function parseLocalFile(path: string) {
   const localFile = fs.readFileSync(path, 'utf-8');
   const m = await mime.lookup(path);
-  invariant(m, `could not parse mime type on ${path}`);
-  return new File(path, localFile, m);
+  return new File(path, localFile, m || 'application/octet-stream');
 }
 
 export function isDirectory(path: string) {
