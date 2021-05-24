@@ -24109,7 +24109,7 @@ class File {
     parse(tmpl) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.mime === 'text/x-handlebars-template') {
-                this.content = tmpl.parse(this.content);
+                this.content = yield tmpl.parse(this.content);
             }
             return {
                 path: this.path,
@@ -24296,9 +24296,11 @@ class Template {
         this.octokit = (0,github.getOctokit)(config.githubToken);
     }
     parse(content) {
-        invariant(this.context, 'expect context to exist');
-        const template = handlebars_lib.compile(content);
-        return template(this.context);
+        return __awaiter(this, void 0, void 0, function* () {
+            invariant(this.context, 'expect context to exist');
+            const template = handlebars_lib.compile(content);
+            return template(this.context);
+        });
     }
     getContext() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -24349,13 +24351,13 @@ class ChangePR {
             const context = yield this.template.getContext();
             const octokit = getOctokit(this.config.githubToken);
             const files = yield this.parseFiles();
-            const prRequest = Object.assign(Object.assign({}, this.parseRepoName()), { title: this.template.parse(this.config.title), body: this.template.parse(this.config.body), base: this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
+            const prRequest = Object.assign(Object.assign({}, this.parseRepoName()), { title: yield this.template.parse(this.config.title), body: yield this.template.parse(this.config.body), base: this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
                     {
                         files: files.reduce((p, c) => {
                             p[c.path] = c.content;
                             return p;
                         }, {}),
-                        commit: this.template.parse(this.config.commitMessage),
+                        commit: yield this.template.parse(this.config.commitMessage),
                     },
                 ] });
             (0,core.debug)(`Creating pull request: ${JSON.stringify(prRequest)}`);

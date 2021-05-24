@@ -24,8 +24,8 @@ export class ChangePR {
 
     const prRequest = {
       ...this.parseRepoName(),
-      title: this.template.parse(this.config.title),
-      body: this.template.parse(this.config.body),
+      title: await this.template.parse(this.config.title),
+      body: await this.template.parse(this.config.body),
       base: this.config.base,
       head: this.config.head ?? `kopier-${context.commit.sha}`,
       createWhenEmpty: false,
@@ -35,7 +35,7 @@ export class ChangePR {
             p[c.path] = c.content;
             return p;
           }, {}),
-          commit: this.template.parse(this.config.commitMessage),
+          commit: await this.template.parse(this.config.commitMessage),
         },
       ],
     };

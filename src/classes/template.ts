@@ -32,7 +32,7 @@ export class Template {
     this.octokit = getOctokit(config.githubToken);
   }
 
-  parse(content: string) {
+  async parse(content: string) {
     invariant(this.context, 'expect context to exist');
 
     const template = Handlebars.compile(content);

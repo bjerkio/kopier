@@ -27,7 +27,7 @@ export class File {
 
   async parse(tmpl: Template) {
     if (this.mime === 'text/x-handlebars-template') {
-      this.content = tmpl.parse(this.content);
+      this.content = await tmpl.parse(this.content);
     }
 
     return {
