@@ -1,4 +1,4 @@
-![Kopier](.github/kopier-logo.png)
+![Kopier](.github/kopier-logo.svg)
 
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/bjerkio/kopier.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bjerkio/kopier/context:javascript)
 [![codecov](https://codecov.io/gh/bjerkio/kopier/branch/master/graph/badge.svg)](https://codecov.io/gh/bjerkio/kopier)
@@ -30,28 +30,72 @@ jobs:
     steps:
       - uses: bjerkio/kopier@main
         with:
-          repos: |
-            bjerkio/kopier
-            bjerkio/oidc-react
+          query: 'org:bjerkio'
 ```
 
 ## Input
 
 ### `github-token`
 
-**Required** The Github Token (a personal one. GITHUB_TOKEN is not going to work). Needs to have access to the repositories files are moved to.
+Default is ${{ github.token }}.
+
+### `query`
+
+Search for repositories you want to query. Learn [how to search for
+repositories on Github Docs](https://docs.github.com/en/github/searching-for-information-on-github/searching-on-github/searching-for-repositories).
+
+**Note**: You cannot combine `query` with `repos`.
 
 ### `repos`
 
-**Required** Repositories to push changes to.
+List of repositories to add files to.
+
+**Example**:
+
+```yaml
+steps:
+  - uses: bjerkio/kopier@main
+    with:
+      repos: |
+        bjerkio/kopier
+        bjerkio/oidc-react
+```
 
 ### `base-path`
 
 Base path for in the repositories, e.g. `.github/workflows`.
 
-### `files`
+Default is `templates/`.
 
-Files to import. e.g. `templates/**`
+### `commit-message`
+
+Commit message.
+
+Default is `chore(kopier): {{commit.subject}}`.
+
+### `title`
+
+Pull Request title.
+
+Default is `chore(kopier): {{commit.subject}}`.
+
+### `body`
+
+Pull Request body.
+
+Default is [found in src/pr-message.ts](src/pr-message.ts).
+
+### `head`
+
+A branch name for updates.
+
+Default is `kopier-{{ commit sha }}`.
+
+### `base`
+
+Base-branch is where the pull request is opened.
+
+Defaults to default branch
 
 # Documentation
 

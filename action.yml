@@ -16,17 +16,17 @@ inputs:
 
   base-path:
     description: Only add files in a spesific folder, e.g. templates/infra-code
-    required: false
+    required: true
     default: templates/
 
   commit-message:
     description: Commit message.
-    required: false
+    required: true
     default: "chore(kopier): {{commit.subject}}"
 
   title:
     description: Pull Request title
-    required: false
+    required: true
     default: "chore(kopier): {{commit.subject}}"
 
   body:
