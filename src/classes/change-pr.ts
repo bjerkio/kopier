@@ -26,7 +26,7 @@ export class ChangePR {
       ...this.parseRepoName(),
       title: await this.template.parse(this.config.title),
       body: await this.template.parse(this.config.body),
-      base: this.config.base,
+      base: this.config.base === '' ? undefined : this.config.base,
       head: this.config.head ?? `kopier-${context.commit.sha}`,
       createWhenEmpty: false,
       changes: [

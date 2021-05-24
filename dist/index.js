@@ -24362,7 +24362,7 @@ class ChangePR {
             const context = yield this.template.getContext();
             const octokit = getOctokit(this.config.githubToken);
             const files = yield this.parseFiles();
-            const prRequest = Object.assign(Object.assign({}, this.parseRepoName()), { title: yield this.template.parse(this.config.title), body: yield this.template.parse(this.config.body), base: this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
+            const prRequest = Object.assign(Object.assign({}, this.parseRepoName()), { title: yield this.template.parse(this.config.title), body: yield this.template.parse(this.config.body), base: this.config.base === '' ? undefined : this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
                     {
                         files: files.reduce((p, c) => {
                             p[c.path] = c.content;
