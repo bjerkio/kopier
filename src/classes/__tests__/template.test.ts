@@ -8,7 +8,7 @@ describe('Template', () => {
   it('should parse template', async () => {
     const templ = new Template({} as Config, 'hello/hello', {} as any);
     templ.context = { there: 'hello' } as any;
-    const res = templ.parse('hello: {{there}}');
+    const res = await templ.parse('hello: {{there}}');
     expect(res).toMatchInlineSnapshot(`"hello: hello"`);
   });
   it('should get context', async () => {

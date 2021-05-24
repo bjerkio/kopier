@@ -24316,7 +24316,7 @@ class Template {
         });
     }
     getRepo() {
-        const [owner, repo] = this.repo;
+        const [owner, repo] = this.repo.split('/');
         return { owner, repo };
     }
     // Context-related functions

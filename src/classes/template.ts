@@ -53,7 +53,7 @@ export class Template {
   }
 
   private getRepo(): Repo {
-    const [owner, repo] = this.repo;
+    const [owner, repo] = this.repo.split('/');
     return { owner, repo };
   }
 
