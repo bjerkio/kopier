@@ -2,7 +2,6 @@
 
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/bjerkio/kopier.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bjerkio/kopier/context:javascript)
 [![codecov](https://codecov.io/gh/bjerkio/kopier/branch/master/graph/badge.svg)](https://codecov.io/gh/bjerkio/kopier)
-![Build & Deploy](https://github.com/bjerkio/kopier/workflows/Build%20&%20Deploy/badge.svg?branch=master)
 [![Maintainability](https://api.codeclimate.com/v1/badges/009a73ce45cab4fbb217/maintainability)](https://codeclimate.com/github/bjerkio/kopier/maintainability)
 
 # Kopier
