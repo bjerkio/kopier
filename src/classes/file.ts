@@ -10,6 +10,10 @@ export class File {
     private mime: string,
   ) {}
 
+  getPath() {
+    return this.path;
+  }
+
   getContent() {
     return this.content;
   }
@@ -44,5 +48,5 @@ export async function parseLocalFile(path: string) {
 
 export async function isDirectory(path: string) {
   const s = fs.statSync(path);
-  return s.isDirectory;
+  return s.isDirectory();
 }

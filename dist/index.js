@@ -24102,6 +24102,9 @@ class File {
         this.content = content;
         this.mime = mime;
     }
+    getPath() {
+        return this.path;
+    }
     getContent() {
         return this.content;
     }
@@ -24384,10 +24387,13 @@ class ChangePR {
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const config = yield makeConfig();
+        core.debug(`Running with config: ${JSON.stringify(config)}`);
         const globber = yield glob.create(config.basePath);
         const originFiles = yield globber.glob();
+        core.debug(`Origin files: ${originFiles.join(', ')}`);
         const files = yield Promise.all(originFiles.filter((f) => !isDirectory(f)).map(parseLocalFile));
-        Promise.all(config.repos.map((repo) => __awaiter(this, void 0, void 0, function* () {
+        core.debug(`Files: ${JSON.stringify(files.map((f) => f.getPath()))}`);
+        yield Promise.all(config.repos.map((repo) => __awaiter(this, void 0, void 0, function* () {
             const pr = new ChangePR(config, repo, files);
             return pr.createPullRequest();
         })));

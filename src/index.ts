@@ -7,13 +7,22 @@ import { ChangePR } from './classes/change-pr';
 export async function run(): Promise<void> {
   const config = await makeConfig();
 
-  const globber = await glob.create(config.basePath);
-  const originFiles = await globber.glob();
-  const files = await Promise.all(
-    originFiles.filter((f) => !isDirectory(f)).map(parseLocalFile),
-  );
+  core.debug(`Running with config: ${JSON.stringify(config)}`);
 
-  Promise.all(
+  const globber = await glob.create(config.basePath);
+  const originFiles = (await globber.glob()).filter((f) => !isDirectory(f));
+
+  core.debug(`Origin files: ${originFiles.join(', ')}`);
+
+  const files = await Promise.all(originFiles.map(parseLocalFile));
+
+  if (files.length === 0) {
+    return core.warning('No files were found.');
+  }
+
+  core.debug(`Files: ${JSON.stringify(files.map((f) => f.getPath()))}`);
+
+  await Promise.all(
     config.repos.map(async (repo) => {
       const pr = new ChangePR(config, repo, files);
       return pr.createPullRequest();
