@@ -1,4 +1,4 @@
-![Kopier](.github/kopier-logo.svg)
+<img width="355" src="./.github/kopier-logo.svg" alt="Bjerk's Kopier Github Action">
 
 [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/bjerkio/kopier.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/bjerkio/kopier/context:javascript)
 [![codecov](https://codecov.io/gh/bjerkio/kopier/branch/master/graph/badge.svg)](https://codecov.io/gh/bjerkio/kopier)
