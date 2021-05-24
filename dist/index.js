@@ -24390,7 +24390,7 @@ function run() {
         core.debug(`Running with config: ${JSON.stringify(config)}`);
         const globber = yield glob.create(config.basePath);
         const globRes = yield globber.glob();
-        const originFiles = globRes.filter((f) => isDirectory(f));
+        const originFiles = globRes.filter((f) => !isDirectory(f));
         core.debug(`Origin files: ${originFiles.join(', ')}`);
         const files = yield Promise.all(originFiles.map(parseLocalFile));
         if (files.length === 0) {
