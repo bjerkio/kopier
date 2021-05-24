@@ -24241,7 +24241,7 @@ function getRepos(token, q) {
 const makeConfig = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const inputs = {
-        githubToken: (0,core.getInput)('github-token', { required: true }),
+        githubToken: (0,core.getInput)('token', { required: true }),
         repos: parseMultiInput((0,core.getInput)('repos')),
         basePath: (0,core.getInput)('base-path', { required: true }),
         commitMessage: (0,core.getInput)('commit-message', { required: true }),

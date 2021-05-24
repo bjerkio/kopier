@@ -94,7 +94,7 @@ async function getRepos(token: string, q?: string) {
 
 export const makeConfig = async (): Promise<Config> => {
   const inputs = {
-    githubToken: getInput('github-token', { required: true }),
+    githubToken: getInput('token', { required: true }),
     repos: parseMultiInput(getInput('repos')),
     basePath: getInput('base-path', { required: true }),
     commitMessage: getInput('commit-message', { required: true }),
