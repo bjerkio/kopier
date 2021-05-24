@@ -10,7 +10,8 @@ export async function run(): Promise<void> {
   core.debug(`Running with config: ${JSON.stringify(config)}`);
 
   const globber = await glob.create(config.basePath);
-  const originFiles = (await globber.glob()).filter((f) => !isDirectory(f));
+  const globRes = await globber.glob();
+  const originFiles = globRes.filter((f) => !isDirectory(f));
 
   core.debug(`Origin files: ${originFiles.join(', ')}`);
 
