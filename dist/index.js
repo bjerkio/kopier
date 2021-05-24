@@ -24055,7 +24055,7 @@ const {
     __decorate,
     __param,
     __metadata,
-    __awaiter: modules_awaiter,
+    __awaiter,
     __generator,
     __exportStar,
     __createBinding,
@@ -24116,7 +24116,7 @@ class File {
         this.content = content;
     }
     parse(tmpl) {
-        return modules_awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             if (this.mime === 'text/x-handlebars-template') {
                 this.content = tmpl.parse(this.content);
             }
@@ -24129,7 +24129,7 @@ class File {
     }
 }
 function parseLocalFile(path) {
-    return modules_awaiter(this, void 0, void 0, function* () {
+    return __awaiter(this, void 0, void 0, function* () {
         const localFile = external_fs_.readFileSync(path, 'utf-8');
         const m = yield mime_types.lookup(path);
         invariant(m, `could not parse mime type on ${path}`);
@@ -24137,11 +24137,9 @@ function parseLocalFile(path) {
     });
 }
 function isDirectory(path) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const s = fs.statSync(path);
-        debug(`${path} - isDirectory? ${s.isDirectory()} - isFile? ${s.isFile()}`);
-        return s.isDirectory();
-    });
+    const s = external_fs_.statSync(path);
+    (0,core.debug)(`${path} - isDirectory? ${s.isDirectory()} - isFile? ${s.isFile()}`);
+    return s.isDirectory();
 }
 
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
@@ -24242,7 +24240,7 @@ const Config = (0,lib.Record)({
     base: lib.String.optional(),
 });
 function getRepos(token, q) {
-    return modules_awaiter(this, void 0, void 0, function* () {
+    return __awaiter(this, void 0, void 0, function* () {
         if (!q)
             return [];
         (0,core.debug)('Running search with Github API');
@@ -24251,7 +24249,7 @@ function getRepos(token, q) {
         return res.data.items.map((i) => i.full_name);
     });
 }
-const makeConfig = () => modules_awaiter(void 0, void 0, void 0, function* () {
+const makeConfig = () => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     const inputs = {
         githubToken: (0,core.getInput)('github-token', { required: true }),
@@ -24307,7 +24305,7 @@ class Template {
         return template(this.context);
     }
     getContext() {
-        return modules_awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             this.context = {
                 github: this.ghContext,
                 origin: yield this.getRepoInfo(this.ghContext.repo),
@@ -24323,13 +24321,13 @@ class Template {
     }
     // Context-related functions
     getLastCommit() {
-        return modules_awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const commit = yield this.octokit.rest.git.getCommit(Object.assign(Object.assign({}, this.ghContext.repo), { commit_sha: this.ghContext.sha }));
             return commit.data;
         });
     }
     getRepoInfo(repo) {
-        return modules_awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const res = yield this.octokit.rest.repos.get(Object.assign({}, repo));
             return res.data;
         });
@@ -24350,7 +24348,7 @@ class ChangePR {
     }
     createPullRequest() {
         var _a;
-        return modules_awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             const context = yield this.template.getContext();
             const octokit = getOctokit(this.config.githubToken);
             const files = yield this.parseFiles();
@@ -24366,7 +24364,7 @@ class ChangePR {
         });
     }
     parseFiles() {
-        return modules_awaiter(this, void 0, void 0, function* () {
+        return __awaiter(this, void 0, void 0, function* () {
             return Promise.all(this.files.map((f) => f.parse(this.template)));
         });
     }
@@ -24387,19 +24385,19 @@ class ChangePR {
 
 
 function run() {
-    return modules_awaiter(this, void 0, void 0, function* () {
+    return __awaiter(this, void 0, void 0, function* () {
         const config = yield makeConfig();
         core.debug(`Running with config: ${JSON.stringify(config)}`);
         const globber = yield glob.create(config.basePath);
         const globRes = yield globber.glob();
-        const originFiles = globRes; // .filter((f) => !isDirectory(f));
+        const originFiles = globRes.filter((f) => isDirectory(f));
         core.debug(`Origin files: ${originFiles.join(', ')}`);
         const files = yield Promise.all(originFiles.map(parseLocalFile));
         if (files.length === 0) {
             return core.warning('No files were found.');
         }
         core.debug(`Files: ${JSON.stringify(files.map((f) => f.getPath()))}`);
-        yield Promise.all(config.repos.map((repo) => modules_awaiter(this, void 0, void 0, function* () {
+        yield Promise.all(config.repos.map((repo) => __awaiter(this, void 0, void 0, function* () {
             const pr = new ChangePR(config, repo, files);
             return pr.createPullRequest();
         })));

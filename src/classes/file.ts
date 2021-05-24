@@ -47,7 +47,7 @@ export async function parseLocalFile(path: string) {
   return new File(path, localFile, m);
 }
 
-export async function isDirectory(path: string) {
+export function isDirectory(path: string) {
   const s = fs.statSync(path);
   debug(`${path} - isDirectory? ${s.isDirectory()} - isFile? ${s.isFile()}`);
   return s.isDirectory();

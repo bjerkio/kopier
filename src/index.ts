@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as glob from '@actions/glob';
-import { parseLocalFile } from './classes/file';
+import { isDirectory, parseLocalFile } from './classes/file';
 import { makeConfig } from './config';
 import { ChangePR } from './classes/change-pr';
 
@@ -11,7 +11,7 @@ export async function run(): Promise<void> {
 
   const globber = await glob.create(config.basePath);
   const globRes = await globber.glob();
-  const originFiles = globRes; // .filter((f) => !isDirectory(f));
+  const originFiles = globRes.filter((f) => isDirectory(f));
 
   core.debug(`Origin files: ${originFiles.join(', ')}`);
 
