@@ -11,7 +11,7 @@ export async function run(): Promise<void> {
 
   const globber = await glob.create(config.basePath);
   const globRes = await globber.glob();
-  const originFiles = globRes.filter((f) => !isDirectory(f));
+  const originFiles = globRes; // .filter((f) => !isDirectory(f));
 
   core.debug(`Origin files: ${originFiles.join(', ')}`);
 
