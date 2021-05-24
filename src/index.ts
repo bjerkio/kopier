@@ -15,7 +15,9 @@ export async function run(): Promise<void> {
 
   core.debug(`Origin files: ${originFiles.join(', ')}`);
 
-  const files = await Promise.all(originFiles.map(parseLocalFile));
+  const files = await Promise.all(
+    originFiles.map((f) => parseLocalFile(config, f)),
+  );
 
   if (files.length === 0) {
     return core.warning('No files were found.');

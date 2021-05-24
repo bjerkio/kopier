@@ -24089,13 +24089,21 @@ var external_fs_ = __nccwpck_require__(5747);
 
 
 class File {
-    constructor(path, content, mime) {
+    constructor(config, path, content, mime) {
+        this.config = config;
         this.path = path;
         this.content = content;
         this.mime = mime;
     }
     getPath() {
         return this.path;
+    }
+    getRepoPath() {
+        const workspacePath = process.env.GITHUB_WORKSPACE || process.cwd();
+        let f = this.path.replace(workspacePath, '');
+        if (this.config.basePath)
+            f = f.replace(this.config.basePath, '');
+        return f;
     }
     getContent() {
         return this.content;
@@ -24112,18 +24120,18 @@ class File {
                 this.content = yield tmpl.parse(this.content);
             }
             return {
-                path: this.path,
-                content: this.content,
-                mime: this.mime,
+                path: this.getRepoPath(),
+                content: this.getContent(),
+                mime: this.getMime(),
             };
         });
     }
 }
-function parseLocalFile(path) {
+function parseLocalFile(config, path) {
     return __awaiter(this, void 0, void 0, function* () {
         const localFile = external_fs_.readFileSync(path, 'utf-8');
         const m = yield mime_types.lookup(path);
-        return new File(path, localFile, m || 'application/octet-stream');
+        return new File(config, path, localFile, m || 'application/octet-stream');
     });
 }
 function isDirectory(path) {
@@ -24397,7 +24405,7 @@ function run() {
         const globRes = yield globber.glob();
         const originFiles = globRes.filter((f) => !isDirectory(f));
         core.debug(`Origin files: ${originFiles.join(', ')}`);
-        const files = yield Promise.all(originFiles.map(parseLocalFile));
+        const files = yield Promise.all(originFiles.map((f) => parseLocalFile(config, f)));
         if (files.length === 0) {
             return core.warning('No files were found.');
         }
