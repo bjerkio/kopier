@@ -1,5 +1,6 @@
 import * as mime from 'mime-types';
 import * as fs from 'fs';
+import * as path from 'path';
 import { Template } from './template';
 import { Config } from '../config';
 
@@ -37,6 +38,7 @@ export class File {
   async parse(tmpl: Template) {
     if (this.mime === 'text/x-handlebars-template') {
       this.content = await tmpl.parse(this.content);
+      this.path = this.path.replace(path.extname(this.path), '');
     }
 
     return {
