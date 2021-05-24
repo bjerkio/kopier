@@ -7,7 +7,6 @@ branding:
 inputs:
   token:
     description: Github Token
-    default: ${{ github.token }}
     required: true
 
   repos:
