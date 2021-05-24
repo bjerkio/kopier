@@ -24165,7 +24165,7 @@ const parseMultiInput = (multilineInput) => {
 };
 const Config = (0,lib.Record)({
     /**
-     * `github-token`
+     * `token`
      * Github Token must be a personal one, not {{ secret.GITHUB_TOKEN }}!
      * We recommend using a service account github profile.
      *

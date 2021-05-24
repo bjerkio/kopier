@@ -5,7 +5,7 @@ branding:
   icon: copy
   color: purple
 inputs:
-  github-token:
+  token:
     description: Github Token
     default: ${{ github.token }}
     required: true
