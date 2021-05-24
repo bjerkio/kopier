@@ -179,7 +179,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseLocalFile = exports.File = void 0;
 const tslib_1 = __webpack_require__(422);
 const mime = __webpack_require__(779);
-const fs = __webpack_require__(225);
+const fs = __webpack_require__(747);
 const utils_1 = __webpack_require__(477);
 class File {
     constructor(path, content, mime) {
@@ -212,7 +212,7 @@ class File {
 exports.File = File;
 function parseLocalFile(path) {
     return tslib_1.__awaiter(this, void 0, void 0, function* () {
-        const localFile = yield fs.readFile(path, 'utf-8');
+        const localFile = fs.readFileSync(path, 'utf-8');
         const m = yield mime.lookup(path);
         utils_1.invariant(m, `could not parse mime type on ${path}`);
         return new File(path, localFile, m);
@@ -4954,13 +4954,6 @@ function getOctokit(token) {
 }
 exports.getOctokit = getOctokit;
 //# sourceMappingURL=octokit.js.map
-
-/***/ }),
-
-/***/ 225:
-/***/ (function(module) {
-
-module.exports = require("fs/promises");
 
 /***/ }),
 
