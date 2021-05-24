@@ -2,7 +2,6 @@ import * as mime from 'mime-types';
 import * as fs from 'fs';
 import { invariant } from '../utils';
 import { Template } from './template';
-import { debug } from '@actions/core';
 
 export class File {
   constructor(

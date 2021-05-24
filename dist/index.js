@@ -24096,7 +24096,6 @@ function invariant(condition, message) {
 
 
 
-
 class File {
     constructor(path, content, mime) {
         this.path = path;
@@ -24138,7 +24137,6 @@ function parseLocalFile(path) {
 }
 function isDirectory(path) {
     const s = external_fs_.statSync(path);
-    (0,core.debug)(`${path} - isDirectory? ${s.isDirectory()} - isFile? ${s.isFile()}`);
     return s.isDirectory();
 }
 
