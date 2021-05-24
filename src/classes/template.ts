@@ -71,9 +71,6 @@ export class Template {
     const res = await this.octokit.rest.repos.get({
       ...repo,
     });
-    debug(
-      `Repo data for ${repo.owner}/${repo.repo}: ${JSON.stringify(res.data)}`,
-    );
     return res.data;
   }
 }

@@ -163,4 +163,9 @@ export const getOctokit = jest.fn(() => ({
     },
   },
 }));
-export const context = {};
+export const context = {
+  repo: {
+    owner: 'bjerkio',
+    repo: 'kopier',
+  },
+};

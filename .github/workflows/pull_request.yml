@@ -22,7 +22,7 @@ jobs:
 
             Thank you for this contribution!
             Due to security reasons, we only allow updating the `dist/**` files with our own workflows.
-          repo-token: ${{ secrets.BJERK_BOT_TOKEN }}
+          repo-token: ${{ secrets.BJERKBOT_GITHUB_TOKEN }}
           repo-token-user-login: bjerk-bot
   install-and-build:
     name: Install and Build GHA
