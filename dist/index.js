@@ -24084,7 +24084,10 @@ var glob = __nccwpck_require__(8090);
 var mime_types = __nccwpck_require__(3583);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(5747);
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(5622);
 ;// CONCATENATED MODULE: ./src/classes/file.ts
+
 
 
 
@@ -24118,6 +24121,7 @@ class File {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.mime === 'text/x-handlebars-template') {
                 this.content = yield tmpl.parse(this.content);
+                this.path = this.path.replace(external_path_.extname(this.path), '');
             }
             return {
                 path: this.getRepoPath(),
@@ -24337,7 +24341,6 @@ class Template {
     getRepoInfo(repo) {
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield this.octokit.rest.repos.get(Object.assign({}, repo));
-            (0,core.debug)(`Repo data for ${repo.owner}/${repo.repo}: ${JSON.stringify(res.data)}`);
             return res.data;
         });
     }
