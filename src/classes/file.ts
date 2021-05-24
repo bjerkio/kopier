@@ -19,7 +19,7 @@ export class File {
     const workspacePath = process.env.GITHUB_WORKSPACE || process.cwd();
     let f = this.path.replace(workspacePath, '');
     if (this.config.basePath) f = f.replace(this.config.basePath, '');
-    return f;
+    return f.replace(/^\/+/g, '');
   }
 
   getContent() {

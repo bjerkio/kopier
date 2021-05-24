@@ -24103,7 +24103,7 @@ class File {
         let f = this.path.replace(workspacePath, '');
         if (this.config.basePath)
             f = f.replace(this.config.basePath, '');
-        return f;
+        return f.replace(/^\/+/g, '');
     }
     getContent() {
         return this.content;
