@@ -2,6 +2,7 @@ import * as mime from 'mime-types';
 import * as fs from 'fs';
 import { invariant } from '../utils';
 import { Template } from './template';
+import { debug } from '@actions/core';
 
 export class File {
   constructor(
@@ -48,5 +49,6 @@ export async function parseLocalFile(path: string) {
 
 export async function isDirectory(path: string) {
   const s = fs.statSync(path);
+  debug(`${path} - isDirectory? ${s.isDirectory} - isFile? ${s.isFile}`);
   return s.isDirectory();
 }
