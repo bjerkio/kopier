@@ -24138,7 +24138,7 @@ function parseLocalFile(path) {
 function isDirectory(path) {
     return __awaiter(this, void 0, void 0, function* () {
         const s = external_fs_.statSync(path);
-        return s.isDirectory;
+        return s.isDirectory();
     });
 }
 
@@ -24389,9 +24389,12 @@ function run() {
         const config = yield makeConfig();
         core.debug(`Running with config: ${JSON.stringify(config)}`);
         const globber = yield glob.create(config.basePath);
-        const originFiles = yield globber.glob();
+        const originFiles = (yield globber.glob()).filter((f) => !isDirectory(f));
         core.debug(`Origin files: ${originFiles.join(', ')}`);
-        const files = yield Promise.all(originFiles.filter((f) => !isDirectory(f)).map(parseLocalFile));
+        const files = yield Promise.all(originFiles.map(parseLocalFile));
+        if (files.length === 0) {
+            return core.warning('No files were found.');
+        }
         core.debug(`Files: ${JSON.stringify(files.map((f) => f.getPath()))}`);
         yield Promise.all(config.repos.map((repo) => __awaiter(this, void 0, void 0, function* () {
             const pr = new ChangePR(config, repo, files);
