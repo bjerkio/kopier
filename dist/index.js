@@ -24139,7 +24139,7 @@ function parseLocalFile(path) {
 function isDirectory(path) {
     return __awaiter(this, void 0, void 0, function* () {
         const s = external_fs_.statSync(path);
-        (0,core.debug)(`${path} - isDirectory? ${s.isDirectory} - isFile? ${s.isFile}`);
+        (0,core.debug)(`${path} - isDirectory? ${s.isDirectory()} - isFile? ${s.isFile()}`);
         return s.isDirectory();
     });
 }
