@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import * as glob from '@actions/glob';
-import { isDirectory, parseLocalFile } from './classes/file';
+import { parseLocalFile } from './classes/file';
 import { makeConfig } from './config';
 import { ChangePR } from './classes/change-pr';
 
