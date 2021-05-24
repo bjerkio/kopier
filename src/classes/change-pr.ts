@@ -1,3 +1,4 @@
+import { debug } from '@actions/core';
 import * as github from '@actions/github';
 import { Config } from '../config';
 import { File } from './file';
@@ -21,7 +22,7 @@ export class ChangePR {
 
     const files = await this.parseFiles();
 
-    await octokit.createPullRequest({
+    const prRequest = {
       ...this.parseRepoName(),
       title: this.template.parse(this.config.title),
       body: this.template.parse(this.config.body),
@@ -37,7 +38,11 @@ export class ChangePR {
           commit: this.template.parse(this.config.commitMessage),
         },
       ],
-    });
+    };
+
+    debug(`Creating pull request: ${JSON.stringify(prRequest)}`);
+
+    await octokit.createPullRequest(prRequest);
   }
 
   private async parseFiles() {

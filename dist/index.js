@@ -24335,6 +24335,7 @@ class Template {
 
 
 
+
 class ChangePR {
     constructor(config, repo, files) {
         this.config = config;
@@ -24348,7 +24349,7 @@ class ChangePR {
             const context = yield this.template.getContext();
             const octokit = getOctokit(this.config.githubToken);
             const files = yield this.parseFiles();
-            yield octokit.createPullRequest(Object.assign(Object.assign({}, this.parseRepoName()), { title: this.template.parse(this.config.title), body: this.template.parse(this.config.body), base: this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
+            const prRequest = Object.assign(Object.assign({}, this.parseRepoName()), { title: this.template.parse(this.config.title), body: this.template.parse(this.config.body), base: this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
                     {
                         files: files.reduce((p, c) => {
                             p[c.path] = c.content;
@@ -24356,7 +24357,9 @@ class ChangePR {
                         }, {}),
                         commit: this.template.parse(this.config.commitMessage),
                     },
-                ] }));
+                ] });
+            (0,core.debug)(`Creating pull request: ${JSON.stringify(prRequest)}`);
+            yield octokit.createPullRequest(prRequest);
         });
     }
     parseFiles() {
