@@ -7,7 +7,7 @@ export const config = {
     faker.system.directoryPath(),
     `${faker.system.directoryPath()}/**`,
   ].join('\n'),
-  'github-token': '0000000000000000000000000000000000000001',
+  'token': '0000000000000000000000000000000000000001',
   repos: [
     'octokit-fixture-org/hello-world',
     'octokit-fixture-org/hello-world',

@@ -1,3 +1,4 @@
+import { debug } from '@actions/core';
 import { context as githubContext, getOctokit } from '@actions/github';
 import { Endpoints } from '@octokit/types';
 import * as Handlebars from 'handlebars';
@@ -32,7 +33,7 @@ export class Template {
     this.octokit = getOctokit(config.githubToken);
   }
 
-  parse(content: string) {
+  async parse(content: string) {
     invariant(this.context, 'expect context to exist');
 
     const template = Handlebars.compile(content);
@@ -40,6 +41,7 @@ export class Template {
   }
 
   async getContext() {
+    debug('Building context');
     this.context = {
       github: this.ghContext,
       origin: await this.getRepoInfo(this.ghContext.repo),
@@ -51,7 +53,7 @@ export class Template {
   }
 
   private getRepo(): Repo {
-    const [owner, repo] = this.repo;
+    const [owner, repo] = this.repo.split('/');
     return { owner, repo };
   }
 
@@ -61,6 +63,7 @@ export class Template {
       ...this.ghContext.repo,
       commit_sha: this.ghContext.sha,
     });
+    debug(`Commit data: ${JSON.stringify(commit.data)}`);
     return commit.data;
   }
 
@@ -68,7 +71,6 @@ export class Template {
     const res = await this.octokit.rest.repos.get({
       ...repo,
     });
-
     return res.data;
   }
 }

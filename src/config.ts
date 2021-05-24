@@ -10,7 +10,7 @@ const parseMultiInput = (multilineInput) => {
 
 export const Config = Record({
   /**
-   * `github-token`
+   * `token`
    * Github Token must be a personal one, not {{ secret.GITHUB_TOKEN }}!
    * We recommend using a service account github profile.
    *
@@ -94,7 +94,7 @@ async function getRepos(token: string, q?: string) {
 
 export const makeConfig = async (): Promise<Config> => {
   const inputs = {
-    githubToken: getInput('github-token', { required: true }),
+    githubToken: getInput('token', { required: true }),
     repos: parseMultiInput(getInput('repos')),
     basePath: getInput('base-path', { required: true }),
     commitMessage: getInput('commit-message', { required: true }),
@@ -107,7 +107,7 @@ export const makeConfig = async (): Promise<Config> => {
 
   return Config.check({
     ...inputs,
-    repos: inputs.repos ?? (await getRepos(inputs.githubToken, inputs.query)),
-    body: inputs.body ?? pullRequestBody,
+    repos: inputs.repos || (await getRepos(inputs.githubToken, inputs.query)),
+    body: inputs.body || pullRequestBody,
   });
 };

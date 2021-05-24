@@ -34,9 +34,10 @@ jobs:
 
 ## Input
 
-### `github-token`
+### `token`
 
-Default is ${{ github.token }}.
+Github Token must be a personal one, not {{ secret.GITHUB_TOKEN }}!
+We recommend using a service account GitHub profile, like [@bjerk-bot](https://github.com/bjerk-bot)
 
 ### `query`
 

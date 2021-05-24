@@ -1,11 +1,12 @@
 import * as mime from 'mime-types';
 import * as fs from 'fs';
-import { invariant } from '../utils';
+import * as path from 'path';
 import { Template } from './template';
-import { debug } from '@actions/core';
+import { Config } from '../config';
 
 export class File {
   constructor(
+    private config: Config,
     private path: string,
     private content: string,
     private mime: string,
@@ -13,6 +14,13 @@ export class File {
 
   getPath() {
     return this.path;
+  }
+
+  getRepoPath() {
+    const workspacePath = process.env.GITHUB_WORKSPACE || process.cwd();
+    let f = this.path.replace(workspacePath, '');
+    if (this.config.basePath) f = f.replace(this.config.basePath, '');
+    return f.replace(/^\/+/g, '');
   }
 
   getContent() {
@@ -29,26 +37,25 @@ export class File {
 
   async parse(tmpl: Template) {
     if (this.mime === 'text/x-handlebars-template') {
-      this.content = tmpl.parse(this.content);
+      this.content = await tmpl.parse(this.content);
+      this.path = this.path.replace(path.extname(this.path), '');
     }
 
     return {
-      path: this.path,
-      content: this.content,
-      mime: this.mime,
+      path: this.getRepoPath(),
+      content: this.getContent(),
+      mime: this.getMime(),
     };
   }
 }
 
-export async function parseLocalFile(path: string) {
+export async function parseLocalFile(config: Config, path: string) {
   const localFile = fs.readFileSync(path, 'utf-8');
   const m = await mime.lookup(path);
-  invariant(m, `could not parse mime type on ${path}`);
-  return new File(path, localFile, m);
+  return new File(config, path, localFile, m || 'application/octet-stream');
 }
 
-export async function isDirectory(path: string) {
+export function isDirectory(path: string) {
   const s = fs.statSync(path);
-  debug(`${path} - isDirectory? ${s.isDirectory()} - isFile? ${s.isFile()}`);
   return s.isDirectory();
 }

@@ -24084,27 +24084,26 @@ var glob = __nccwpck_require__(8090);
 var mime_types = __nccwpck_require__(3583);
 // EXTERNAL MODULE: external "fs"
 var external_fs_ = __nccwpck_require__(5747);
-;// CONCATENATED MODULE: ./src/utils.ts
-function invariant(condition, message) {
-    if (!condition) {
-        throw new Error(message);
-    }
-}
-
 ;// CONCATENATED MODULE: ./src/classes/file.ts
 
 
 
-
-
 class File {
-    constructor(path, content, mime) {
+    constructor(config, path, content, mime) {
+        this.config = config;
         this.path = path;
         this.content = content;
         this.mime = mime;
     }
     getPath() {
         return this.path;
+    }
+    getRepoPath() {
+        const workspacePath = process.env.GITHUB_WORKSPACE || process.cwd();
+        let f = this.path.replace(workspacePath, '');
+        if (this.config.basePath)
+            f = f.replace(this.config.basePath, '');
+        return f.replace(/^\/+/g, '');
     }
     getContent() {
         return this.content;
@@ -24118,30 +24117,26 @@ class File {
     parse(tmpl) {
         return __awaiter(this, void 0, void 0, function* () {
             if (this.mime === 'text/x-handlebars-template') {
-                this.content = tmpl.parse(this.content);
+                this.content = yield tmpl.parse(this.content);
             }
             return {
-                path: this.path,
-                content: this.content,
-                mime: this.mime,
+                path: this.getRepoPath(),
+                content: this.getContent(),
+                mime: this.getMime(),
             };
         });
     }
 }
-function parseLocalFile(path) {
+function parseLocalFile(config, path) {
     return __awaiter(this, void 0, void 0, function* () {
         const localFile = external_fs_.readFileSync(path, 'utf-8');
         const m = yield mime_types.lookup(path);
-        invariant(m, `could not parse mime type on ${path}`);
-        return new File(path, localFile, m);
+        return new File(config, path, localFile, m || 'application/octet-stream');
     });
 }
 function isDirectory(path) {
-    return __awaiter(this, void 0, void 0, function* () {
-        const s = external_fs_.statSync(path);
-        (0,core.debug)(`${path} - isDirectory? ${s.isDirectory()} - isFile? ${s.isFile()}`);
-        return s.isDirectory();
-    });
+    const s = external_fs_.statSync(path);
+    return s.isDirectory();
 }
 
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
@@ -24178,7 +24173,7 @@ const parseMultiInput = (multilineInput) => {
 };
 const Config = (0,lib.Record)({
     /**
-     * `github-token`
+     * `token`
      * Github Token must be a personal one, not {{ secret.GITHUB_TOKEN }}!
      * We recommend using a service account github profile.
      *
@@ -24252,9 +24247,8 @@ function getRepos(token, q) {
     });
 }
 const makeConfig = () => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
     const inputs = {
-        githubToken: (0,core.getInput)('github-token', { required: true }),
+        githubToken: (0,core.getInput)('token', { required: true }),
         repos: parseMultiInput((0,core.getInput)('repos')),
         basePath: (0,core.getInput)('base-path', { required: true }),
         commitMessage: (0,core.getInput)('commit-message', { required: true }),
@@ -24264,7 +24258,7 @@ const makeConfig = () => __awaiter(void 0, void 0, void 0, function* () {
         head: (0,core.getInput)('head'),
         base: (0,core.getInput)('base'),
     };
-    return Config.check(Object.assign(Object.assign({}, inputs), { repos: (_a = inputs.repos) !== null && _a !== void 0 ? _a : (yield getRepos(inputs.githubToken, inputs.query)), body: (_b = inputs.body) !== null && _b !== void 0 ? _b : pullRequestBody }));
+    return Config.check(Object.assign(Object.assign({}, inputs), { repos: inputs.repos || (yield getRepos(inputs.githubToken, inputs.query)), body: inputs.body || pullRequestBody }));
 });
 
 // EXTERNAL MODULE: ./node_modules/@octokit/auth-action/dist-node/index.js
@@ -24289,7 +24283,15 @@ function getOctokit(token) {
 
 // EXTERNAL MODULE: ./node_modules/handlebars/lib/index.js
 var handlebars_lib = __nccwpck_require__(7492);
+;// CONCATENATED MODULE: ./src/utils.ts
+function invariant(condition, message) {
+    if (!condition) {
+        throw new Error(message);
+    }
+}
+
 ;// CONCATENATED MODULE: ./src/classes/template.ts
+
 
 
 
@@ -24302,12 +24304,15 @@ class Template {
         this.octokit = (0,github.getOctokit)(config.githubToken);
     }
     parse(content) {
-        invariant(this.context, 'expect context to exist');
-        const template = handlebars_lib.compile(content);
-        return template(this.context);
+        return __awaiter(this, void 0, void 0, function* () {
+            invariant(this.context, 'expect context to exist');
+            const template = handlebars_lib.compile(content);
+            return template(this.context);
+        });
     }
     getContext() {
         return __awaiter(this, void 0, void 0, function* () {
+            (0,core.debug)('Building context');
             this.context = {
                 github: this.ghContext,
                 origin: yield this.getRepoInfo(this.ghContext.repo),
@@ -24318,25 +24323,28 @@ class Template {
         });
     }
     getRepo() {
-        const [owner, repo] = this.repo;
+        const [owner, repo] = this.repo.split('/');
         return { owner, repo };
     }
     // Context-related functions
     getLastCommit() {
         return __awaiter(this, void 0, void 0, function* () {
             const commit = yield this.octokit.rest.git.getCommit(Object.assign(Object.assign({}, this.ghContext.repo), { commit_sha: this.ghContext.sha }));
+            (0,core.debug)(`Commit data: ${JSON.stringify(commit.data)}`);
             return commit.data;
         });
     }
     getRepoInfo(repo) {
         return __awaiter(this, void 0, void 0, function* () {
             const res = yield this.octokit.rest.repos.get(Object.assign({}, repo));
+            (0,core.debug)(`Repo data for ${repo.owner}/${repo.repo}: ${JSON.stringify(res.data)}`);
             return res.data;
         });
     }
 }
 
 ;// CONCATENATED MODULE: ./src/classes/change-pr.ts
+
 
 
 
@@ -24354,15 +24362,17 @@ class ChangePR {
             const context = yield this.template.getContext();
             const octokit = getOctokit(this.config.githubToken);
             const files = yield this.parseFiles();
-            yield octokit.createPullRequest(Object.assign(Object.assign({}, this.parseRepoName()), { title: this.template.parse(this.config.title), body: this.template.parse(this.config.body), base: this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
+            const prRequest = Object.assign(Object.assign({}, this.parseRepoName()), { title: yield this.template.parse(this.config.title), body: yield this.template.parse(this.config.body), base: this.config.base === '' ? undefined : this.config.base, head: (_a = this.config.head) !== null && _a !== void 0 ? _a : `kopier-${context.commit.sha}`, createWhenEmpty: false, changes: [
                     {
                         files: files.reduce((p, c) => {
                             p[c.path] = c.content;
                             return p;
                         }, {}),
-                        commit: this.template.parse(this.config.commitMessage),
+                        commit: yield this.template.parse(this.config.commitMessage),
                     },
-                ] }));
+                ] });
+            (0,core.debug)(`Creating pull request: ${JSON.stringify(prRequest)}`);
+            yield octokit.createPullRequest(prRequest);
         });
     }
     parseFiles() {
@@ -24394,7 +24404,7 @@ function run() {
         const globRes = yield globber.glob();
         const originFiles = globRes.filter((f) => !isDirectory(f));
         core.debug(`Origin files: ${originFiles.join(', ')}`);
-        const files = yield Promise.all(originFiles.map(parseLocalFile));
+        const files = yield Promise.all(originFiles.map((f) => parseLocalFile(config, f)));
         if (files.length === 0) {
             return core.warning('No files were found.');
         }

@@ -5,9 +5,8 @@ branding:
   icon: copy
   color: purple
 inputs:
-  github-token:
+  token:
     description: Github Token
-    default: ${{ github.token }}
     required: true
 
   repos:
@@ -22,12 +21,12 @@ inputs:
   commit-message:
     description: Commit message.
     required: true
-    default: "chore(kopier): {{commit.subject}}"
+    default: "chore(kopier): {{commit.message}}"
 
   title:
     description: Pull Request title
     required: true
-    default: "chore(kopier): {{commit.subject}}"
+    default: "chore(kopier): {{commit.message}}"
 
   body:
     description: Pull Request body

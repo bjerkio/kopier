@@ -1,3 +1,4 @@
+import { debug } from '@actions/core';
 import * as github from '@actions/github';
 import { Config } from '../config';
 import { File } from './file';
@@ -21,11 +22,11 @@ export class ChangePR {
 
     const files = await this.parseFiles();
 
-    await octokit.createPullRequest({
+    const prRequest = {
       ...this.parseRepoName(),
-      title: this.template.parse(this.config.title),
-      body: this.template.parse(this.config.body),
-      base: this.config.base,
+      title: await this.template.parse(this.config.title),
+      body: await this.template.parse(this.config.body),
+      base: this.config.base === '' ? undefined : this.config.base,
       head: this.config.head ?? `kopier-${context.commit.sha}`,
       createWhenEmpty: false,
       changes: [
@@ -34,10 +35,14 @@ export class ChangePR {
             p[c.path] = c.content;
             return p;
           }, {}),
-          commit: this.template.parse(this.config.commitMessage),
+          commit: await this.template.parse(this.config.commitMessage),
         },
       ],
-    });
+    };
+
+    debug(`Creating pull request: ${JSON.stringify(prRequest)}`);
+
+    await octokit.createPullRequest(prRequest);
   }
 
   private async parseFiles() {
