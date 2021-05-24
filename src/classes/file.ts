@@ -41,3 +41,8 @@ export async function parseLocalFile(path: string) {
   invariant(m, `could not parse mime type on ${path}`);
   return new File(path, localFile, m);
 }
+
+export async function isDirectory(path: string) {
+  const s = fs.statSync(path);
+  return s.isDirectory;
+}
