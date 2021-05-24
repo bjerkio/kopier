@@ -176,7 +176,7 @@ exports.quickSort = function (ary, comparator) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseLocalFile = exports.File = void 0;
+exports.isDirectory = exports.parseLocalFile = exports.File = void 0;
 const tslib_1 = __webpack_require__(422);
 const mime = __webpack_require__(779);
 const fs = __webpack_require__(747);
@@ -219,6 +219,13 @@ function parseLocalFile(path) {
     });
 }
 exports.parseLocalFile = parseLocalFile;
+function isDirectory(path) {
+    return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        const s = fs.statSync(path);
+        return s.isDirectory;
+    });
+}
+exports.isDirectory = isDirectory;
 //# sourceMappingURL=file.js.map
 
 /***/ }),
@@ -11262,7 +11269,7 @@ function run() {
         const config = yield config_1.makeConfig();
         const globber = yield glob.create(config.basePath);
         const originFiles = yield globber.glob();
-        const files = yield Promise.all(originFiles.map((f) => file_1.parseLocalFile(f)));
+        const files = yield Promise.all(originFiles.filter((f) => !file_1.isDirectory(f)).map(file_1.parseLocalFile));
         Promise.all(config.repos.map((repo) => tslib_1.__awaiter(this, void 0, void 0, function* () {
             const pr = new change_pr_1.ChangePR(config, repo, files);
             return pr.createPullRequest();
