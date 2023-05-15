@@ -1,6 +1,6 @@
 {
   "name": "vault-action",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Export secrets from Vault into Github Actions",
   "repository": "github:bjerkio/kopier",
   "license": "Apache-2.0",

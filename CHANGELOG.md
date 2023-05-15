@@ -1,5 +1,28 @@
 # Changelog
 
+## [2.0.0](https://www.github.com/bjerkio/kopier/compare/v1.0.0...v2.0.0) (2023-05-15)
+
+
+### ⚠ BREAKING CHANGES
+
+* Improved architecture (#23)
+
+### Features
+
+* Add ability to set `branch` to always use same branch ([#20](https://www.github.com/bjerkio/kopier/issues/20)) ([0b2a4e7](https://www.github.com/bjerkio/kopier/commit/0b2a4e7720c2785259d1a09238b07c770fa0ee70))
+* Add GraphQL Repo search functionality ([#15](https://www.github.com/bjerkio/kopier/issues/15)) ([f7481ea](https://www.github.com/bjerkio/kopier/commit/f7481eadf7f6f44e623d410d4d1168e79201894d))
+
+
+### Bug Fixes
+
+* **deps:** update dependency @vercel/ncc to ^0.36.0 ([#47](https://www.github.com/bjerkio/kopier/issues/47)) ([8270e51](https://www.github.com/bjerkio/kopier/commit/8270e51e11b819509896f96999e98854eb9ef3a0))
+* Issue where files not pushed ([f2e3b66](https://www.github.com/bjerkio/kopier/commit/f2e3b66500f84e20ddf662966f39ac0e8ce222b9))
+
+
+### Code Refactoring
+
+* Improved architecture ([#23](https://www.github.com/bjerkio/kopier/issues/23)) ([bd52371](https://www.github.com/bjerkio/kopier/commit/bd5237100fcf9dfde260eda13736b1430040e11f))
+
 ## 1.0.0 (2021-04-11)
 
 
