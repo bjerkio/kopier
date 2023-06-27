@@ -27,7 +27,7 @@
     "mime-types": "^2.1.30",
     "octokit-plugin-create-pull-request": "^3.9.3",
     "runtypes": "^6.3.0",
-    "tslib": "~2.2.0",
+    "tslib": "~2.6.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
